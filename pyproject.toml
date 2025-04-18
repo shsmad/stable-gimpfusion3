@@ -1,0 +1,15 @@
+[project]
+name = "stable-gimpfusion3"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "shsmad", email = "shsmad@gmail.com"},
+]
+dependencies = ["PyGObject==3.42.2"]
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
