@@ -1,11 +1,11 @@
 [project]
 name = "stable-gimpfusion3"
 version = "0.1.0"
-description = "Default template for PDM package"
+description = "Plugin for using GIMP 3 with Stable Diffusion"
 authors = [
     {name = "shsmad", email = "shsmad@gmail.com"},
 ]
-dependencies = ["PyGObject==3.42.2"]
+dependencies = ["PyGObject==3.42.2", "requests>=2.32.3"]
 requires-python = "==3.11.*"
 readme = "README.md"
 license = {text = "MIT"}
@@ -13,3 +13,85 @@ license = {text = "MIT"}
 
 [tool.pdm]
 distribution = false
+
+[tool.ruff]
+target-version = "py311"
+exclude = [
+    ".tox",
+    ".git",
+    "__pycache__",
+    "docs/source/conf.py",
+    "old",
+    "build",
+    "dist",
+    "*_pb2*.py",
+    "setup.py",
+    "_stable_gimpfusion.py",
+]
+line-length = 120
+
+
+[tool.ruff.lint]
+ignore = [
+    "A003",
+    "D107",
+    "D202",
+    "D203",
+    "D401",
+
+    "E402", # top imports
+    "S113", # requests without timeouts
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+]
+select = [
+    "A", # builtins
+    "B", # bugbear
+    "C4", # comprehensions
+    "COM", # commas
+    # "D",   # pydocstyle
+    "E", # pycodestyle
+    "F", # pyflakes
+    "I", # isort
+    "PT", # pytest-style
+    "S", # bandit
+    "SIM", # simplify
+    "T1", # debugger
+    "T2", # print
+    "UP", # pyupgrade
+    "W", # pycodestyle
+]
+# Avoid trying to fix flake8-bugbear (`B`) violations.
+unfixable = ["B"]
+
+
+[tool.ruff.lint.per-file-ignores]
+"test/*.py" = ["S101"]
+
+[tool.ruff.lint.isort]
+lines-between-types = 1
+known-first-party = ["test"]
+known-local-folder = ["src"]
+force-single-line = false
+
+[tool.mypy]
+follow_imports = "skip"
+ignore_missing_imports = true
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = ["gi.*"]
+follow_untyped_imports = true
+# ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.6",
+    "mypy>=1.15.0",
+]
