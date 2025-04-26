@@ -54,7 +54,7 @@ def PLUGIN_FIELDS_COMMON(procedure, samplers, selected_sampler):
         A higher number results in longer generation time, and does not necessarily guarantee higher image quality.""",
         5,
         150,
-        10,
+        20,
         GObject.ParamFlags.READWRITE,
     )
     procedure.add_int_argument(

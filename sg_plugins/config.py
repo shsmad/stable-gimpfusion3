@@ -2,12 +2,14 @@ import logging
 
 import gi
 
+from sg_gtk_utils import add_textarea_to_container
 from sg_plugins import PluginBase
 from sg_utils import set_logging_dest
 
 gi.require_version("Gimp", "3.0")
 gi.require_version("GimpUi", "3.0")
-from gi.repository import Gimp, GimpUi, GLib, GObject
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gimp, GimpUi, Gtk, GLib, GObject
 
 from sg_proc_arguments import PLUGIN_FIELDS_CHECKPOINT
 
@@ -18,12 +20,18 @@ class ConfigPlugin(PluginBase):
     description = "This is where you configure params that are shared between all API requests"
 
     def add_arguments(self, procedure):
-        procedure.add_string_argument("prompt", "Prompt Suffix", "Prompt Suffix", "", GObject.ParamFlags.READWRITE)
+        procedure.add_string_argument(
+            "prompt",
+            "Prompt Suffix",
+            "Prompt Suffix",
+            "beauty, good skin, sharp skin, ultra detailed skin, high quality, RAW photo, analog film, 35mm photograph, 32K UHD, close-up, ultra realistic, clean",  # noqa: E501
+            GObject.ParamFlags.READWRITE,
+        )
         procedure.add_string_argument(
             "negative_prompt",
             "Negative Prompt Suffix",
             "Negative Prompt Suffix",
-            "",
+            "(deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation",  # noqa: E501
             GObject.ParamFlags.READWRITE,
         )
         procedure.add_string_argument(
@@ -53,9 +61,34 @@ class ConfigPlugin(PluginBase):
 
         if run_mode == Gimp.RunMode.INTERACTIVE:
             GimpUi.init(procedure.get_name())
-            dialog = GimpUi.ProcedureDialog.new(procedure, config)
+            dialog = GimpUi.ProcedureDialog.new(procedure, config, title="Global gimpfusion settings")
 
-            dialog.fill(["prompt", "negative_prompt", "api_base", "debug_logging", "file_logging"])
+            vbox = Gtk.Box(
+                orientation=Gtk.Orientation.VERTICAL, homogeneous=False, spacing=10
+            )
+            dialog.get_content_area().add(vbox)
+            vbox.show()
+            # Create grid to set all the properties inside.
+            grid = Gtk.Grid()
+            grid.set_column_homogeneous(False)
+            grid.set_border_width(10)
+            grid.set_column_spacing(10)
+            grid.set_row_spacing(10)
+            # vbox.add(grid)
+            grid.show()
+
+            # label = Gtk.Label.new_with_mnemonic("Scale")
+            # grid.attach(label, 0, 0, 1, 1)
+            # label.show()
+
+            # props = dialog.fill_box("box1", ["api_base", "debug_logging", "file_logging"])
+            # wid = dialog.fill_frame("box2", None, False, "box1")
+            # wid.set_label("tutkee")
+
+            add_textarea_to_container(procedure, config, "prompt", vbox)
+            add_textarea_to_container(procedure, config, "negative-prompt", vbox)
+
+            dialog.fill(["api_base", "debug_logging", "file_logging"])
 
             if not dialog.run():
                 return procedure.new_return_values(Gimp.PDBStatusType.CANCEL, GLib.Error())
