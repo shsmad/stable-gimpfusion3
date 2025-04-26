@@ -1,0 +1,283 @@
+{
+    "alwayson_scripts": {
+        "API payload": {
+            "args": []
+        },
+        "ControlNet": {
+            "args": [
+                {
+                    "batch_image_dir": "",
+                    "batch_input_gallery": null,
+                    "batch_mask_dir": "",
+                    "batch_mask_gallery": null,
+                    "control_mode": "Balanced",
+                    "enabled": false,
+                    "generated_image": null,
+                    "guidance_end": 1,
+                    "guidance_start": 0,
+                    "hr_option": "Both",
+                    "image": null,
+                    "image_fg": null,
+                    "input_mode": "simple",
+                    "mask_image": null,
+                    "mask_image_fg": null,
+                    "model": "None",
+                    "module": "None",
+                    "pixel_perfect": false,
+                    "processor_res": -1,
+                    "resize_mode": "Crop and Resize",
+                    "save_detected_map": true,
+                    "threshold_a": -1,
+                    "threshold_b": -1,
+                    "use_preview_as_input": false,
+                    "weight": 1
+                },
+                {
+                    "batch_image_dir": "",
+                    "batch_input_gallery": null,
+                    "batch_mask_dir": "",
+                    "batch_mask_gallery": null,
+                    "control_mode": "Balanced",
+                    "enabled": false,
+                    "generated_image": null,
+                    "guidance_end": 1,
+                    "guidance_start": 0,
+                    "hr_option": "Both",
+                    "image": null,
+                    "image_fg": null,
+                    "input_mode": "simple",
+                    "mask_image": null,
+                    "mask_image_fg": null,
+                    "model": "None",
+                    "module": "None",
+                    "pixel_perfect": false,
+                    "processor_res": -1,
+                    "resize_mode": "Crop and Resize",
+                    "save_detected_map": true,
+                    "threshold_a": -1,
+                    "threshold_b": -1,
+                    "use_preview_as_input": false,
+                    "weight": 1
+                },
+                {
+                    "batch_image_dir": "",
+                    "batch_input_gallery": null,
+                    "batch_mask_dir": "",
+                    "batch_mask_gallery": null,
+                    "control_mode": "Balanced",
+                    "enabled": false,
+                    "generated_image": null,
+                    "guidance_end": 1,
+                    "guidance_start": 0,
+                    "hr_option": "Both",
+                    "image": null,
+                    "image_fg": null,
+                    "input_mode": "simple",
+                    "mask_image": null,
+                    "mask_image_fg": null,
+                    "model": "None",
+                    "module": "None",
+                    "pixel_perfect": false,
+                    "processor_res": -1,
+                    "resize_mode": "Crop and Resize",
+                    "save_detected_map": true,
+                    "threshold_a": -1,
+                    "threshold_b": -1,
+                    "use_preview_as_input": false,
+                    "weight": 1
+                }
+            ]
+        },
+        "DynamicThresholding (CFG-Fix) Integrated": {
+            "args": [
+                false,
+                7,
+                1,
+                "Constant",
+                0,
+                "Constant",
+                0,
+                1,
+                "enable",
+                "MEAN",
+                "AD",
+                1
+            ]
+        },
+        "Extra options": {
+            "args": [
+                "ESRGAN_4x"
+            ]
+        },
+        "FreeU Integrated (SD 1.x, SD 2.x, SDXL)": {
+            "args": [
+                false,
+                1.01,
+                1.02,
+                0.99,
+                0.95,
+                0,
+                1
+            ]
+        },
+        "Kohya HRFix Integrated": {
+            "args": [
+                false,
+                3,
+                2,
+                0,
+                0.35,
+                true,
+                "bicubic",
+                "bicubic"
+            ]
+        },
+        "LatentModifier Integrated": {
+            "args": [
+                false,
+                0,
+                "anisotropic",
+                0,
+                "reinhard",
+                100,
+                0,
+                "subtract",
+                0,
+                0,
+                "gaussian",
+                "add",
+                0,
+                100,
+                127,
+                0,
+                "hard_clamp",
+                5,
+                0,
+                "None",
+                "None"
+            ]
+        },
+        "MultiDiffusion Integrated": {
+            "args": [
+                false,
+                "MultiDiffusion",
+                768,
+                768,
+                64,
+                4
+            ]
+        },
+        "Never OOM Integrated": {
+            "args": [
+                false,
+                false
+            ]
+        },
+        "PerturbedAttentionGuidance Integrated": {
+            "args": [
+                false,
+                3
+            ]
+        },
+        "Refiner": {
+            "args": [
+                false,
+                "",
+                0.8
+            ]
+        },
+        "Sampler": {
+            "args": [
+                20,
+                "Euler a",
+                "Automatic"
+            ]
+        },
+        "Seed": {
+            "args": [
+                -1,
+                false,
+                -1,
+                0,
+                0,
+                0
+            ]
+        },
+        "SelfAttentionGuidance Integrated (SD 1.x, SD 2.x, SDXL)": {
+            "args": [
+                false,
+                0.5,
+                2,
+                1
+            ]
+        },
+        "Soft Inpainting": {
+            "args": [
+                false,
+                1,
+                0.5,
+                4,
+                0,
+                0.5,
+                2
+            ]
+        },
+        "StyleAlign Integrated": {
+            "args": [
+                false,
+                1
+            ]
+        }
+    },
+    "batch_size": 1,
+    "cfg_scale": 7,
+    "comments": {},
+    "denoising_strength": 0.75,
+    "disable_extra_networks": false,
+    "distilled_cfg_scale": 3.5,
+    "do_not_save_grid": false,
+    "do_not_save_samples": false,
+    "height": 728,
+    "hr_distilled_cfg": 3.5,
+    "image_cfg_scale": 1.5,
+    "init_images": [
+        "base64image placeholder"
+    ],
+    "initial_noise_multiplier": 1,
+    "inpaint_full_res": 0,
+    "inpaint_full_res_padding": 32,
+    "inpainting_fill": 1,
+    "inpainting_mask_invert": 0,
+    "mask_blur": 4,
+    "mask_blur_x": 4,
+    "mask_blur_y": 4,
+    "mask_round": true,
+    "n_iter": 1,
+    "negative_prompt": "",
+    "override_settings": {
+        "upscaler_for_img2img": "ESRGAN_4x"
+    },
+    "override_settings_restore_afterwards": true,
+    "prompt": "",
+    "resize_mode": 0,
+    "restore_faces": false,
+    "s_churn": 0,
+    "s_min_uncond": 0,
+    "s_noise": 1,
+    "s_tmax": null,
+    "s_tmin": 0,
+    "sampler_name": "Euler a",
+    "scheduler": "Automatic",
+    "script_args": [],
+    "script_name": null,
+    "seed": -1,
+    "seed_enable_extras": true,
+    "seed_resize_from_h": -1,
+    "seed_resize_from_w": -1,
+    "steps": 20,
+    "styles": [],
+    "subseed": -1,
+    "subseed_strength": 0,
+    "tiling": false,
+    "width": 728
+}
