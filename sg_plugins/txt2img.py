@@ -4,6 +4,7 @@ import random
 import gi
 
 from sg_constants import GENERATION_MESSAGES, MAX_BATCH_SIZE, SAMPLERS
+from sg_gtk_utils import add_textarea_to_container, set_visibility_control_by, set_visibility_of
 from sg_plugins import PluginBase
 from sg_proc_arguments import PLUGIN_FIELDS_COMMON, PLUGIN_FIELDS_CONTROLNET_OPTIONS
 from sg_structures import ResponseLayers, getControlNetParams
@@ -11,7 +12,7 @@ from sg_utils import roundToMultiple
 
 gi.require_version("Gimp", "3.0")
 gi.require_version("GimpUi", "3.0")
-from gi.repository import Gimp, GimpUi, GLib
+from gi.repository import Gimp, GimpUi, GLib, Gtk
 
 
 class Txt2imagePlugin(PluginBase):
@@ -29,31 +30,86 @@ class Txt2imagePlugin(PluginBase):
             GimpUi.init(procedure.get_name())
             dialog = GimpUi.ProcedureDialog.new(procedure, config)
 
-            dialog.get_scale_entry("batch_size", 1)
-            dialog.get_scale_entry("steps", 1)
-            # dialog.get_scale_entry("mask_blur", 1)
+            vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, homogeneous=False, spacing=10)
+            dialog.get_content_area().add(vbox)
+            vbox.show()
+
+            add_textarea_to_container(procedure, config, "prompt", vbox)
+            add_textarea_to_container(procedure, config, "negative-prompt", vbox)
+
+            # dialog.get_scale_entry("batch_size", 1)
+            # dialog.get_scale_entry("steps", 1)
             dialog.get_scale_entry("width", 1).set_increments(8, 64)
             dialog.get_scale_entry("height", 1).set_increments(8, 64)
             dialog.get_scale_entry("cfg_scale", 1).set_increments(0.5, 1)
+            # dialog.get_scale_entry("mask_blur", 1)
+
+            # Create grid to set all the properties inside.
+            grid = Gtk.Grid()
+            grid.set_column_homogeneous(True)
+            grid.set_column_spacing(10)
+            grid.set_row_spacing(10)
+            vbox.add(grid)
+            grid.show()
+
+            width_box = dialog.fill_box("width_box", ["width"])
+            height_box = dialog.fill_box("height_box", ["height"])
+            steps_box = dialog.fill_box("steps_box", ["steps"])
+            cfg_scale_box = dialog.fill_box("cfg_scale_box", ["cfg_scale"])
+            restore_faces_box = dialog.fill_box("restore_faces_box", ["restore_faces"])
+            tiling_box = dialog.fill_box("tiling_box", ["tiling"])
+            cn1_enabled_box = dialog.fill_box("cn1_enabled_box", ["cn1_enabled"])
+            cn1_layer_box = dialog.fill_box("cn1_layer_box", ["cn1_layer"])
+            cn2_enabled_box = dialog.fill_box("cn2_enabled_box", ["cn2_enabled"])
+            cn2_layer_box = dialog.fill_box("cn2_layer_box", ["cn2_layer"])
+
+            seed_box = dialog.fill_box("seed_box", ["seed"])
+            batch_size_box = dialog.fill_box("batch_size_box", ["batch_size"])
+
+            sampler_index_box = dialog.fill_box("sampler_index_box", ["sampler_index"])
+            denoising_strength_box = dialog.fill_box("denoising_strength_box", ["denoising_strength"])
+
+            # label = Gtk.Label.new_with_mnemonic("Scale")
+            grid.attach(width_box, 0, 0, 2, 1)
+            grid.attach(height_box, 2, 0, 2, 1)
+
+            grid.attach(seed_box, 0, 1, 1, 1)
+            grid.attach(steps_box, 1, 1, 1, 1)
+            grid.attach(cfg_scale_box, 2, 1, 1, 1)
+            grid.attach(batch_size_box, 3, 1, 1, 1)
+
+            grid.attach(sampler_index_box, 0, 3, 1, 1)
+            grid.attach(denoising_strength_box, 1, 3, 1, 1)
+            grid.attach(restore_faces_box, 2, 3, 1, 1)
+            grid.attach(tiling_box, 3, 3, 1, 1)
+
+            grid.attach(cn1_enabled_box, 0, 5, 1, 1)
+            grid.attach(cn2_enabled_box, 1, 5, 1, 1)
+            grid.attach(cn1_layer_box, 0, 6, 1, 1)
+            grid.attach(cn2_layer_box, 1, 6, 1, 1)
+
+            set_visibility_of([
+                width_box,
+                height_box,
+                steps_box,
+                cfg_scale_box,
+                restore_faces_box,
+                tiling_box,
+                cn1_enabled_box,
+                cn2_enabled_box,
+                seed_box,
+                batch_size_box,
+                sampler_index_box,
+                denoising_strength_box,
+            ])
+
+            set_visibility_control_by(cn1_enabled_box, [cn1_layer_box])
+            set_visibility_control_by(cn2_enabled_box, [cn2_layer_box])
+
+            dialog.resize(800, 600)
+
             dialog.fill(
                 [
-                    "prompt",
-                    "negative_prompt",
-                    "seed",
-                    "batch_size",
-                    "steps",
-                    # "mask_blur",
-                    "width",
-                    "height",
-                    "cfg_scale",
-                    "denoising_strength",
-                    "sampler_index",
-                    "restore_faces",
-                    "tiling",
-                    "cn1_enabled",
-                    "cn1_layer",
-                    "cn2_enabled",
-                    "cn2_layer",
                     "cn_skip_annotator_layers",
                 ],
             )

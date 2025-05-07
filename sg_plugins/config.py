@@ -9,7 +9,7 @@ from sg_utils import set_logging_dest
 gi.require_version("Gimp", "3.0")
 gi.require_version("GimpUi", "3.0")
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gimp, GimpUi, Gtk, GLib, GObject
+from gi.repository import Gimp, GimpUi, GLib, GObject, Gtk
 
 from sg_proc_arguments import PLUGIN_FIELDS_CHECKPOINT
 
@@ -63,23 +63,9 @@ class ConfigPlugin(PluginBase):
             GimpUi.init(procedure.get_name())
             dialog = GimpUi.ProcedureDialog.new(procedure, config, title="Global gimpfusion settings")
 
-            vbox = Gtk.Box(
-                orientation=Gtk.Orientation.VERTICAL, homogeneous=False, spacing=10
-            )
+            vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, homogeneous=False, spacing=10)
             dialog.get_content_area().add(vbox)
             vbox.show()
-            # Create grid to set all the properties inside.
-            grid = Gtk.Grid()
-            grid.set_column_homogeneous(False)
-            grid.set_border_width(10)
-            grid.set_column_spacing(10)
-            grid.set_row_spacing(10)
-            # vbox.add(grid)
-            grid.show()
-
-            # label = Gtk.Label.new_with_mnemonic("Scale")
-            # grid.attach(label, 0, 0, 1, 1)
-            # label.show()
 
             # props = dialog.fill_box("box1", ["api_base", "debug_logging", "file_logging"])
             # wid = dialog.fill_frame("box2", None, False, "box1")
@@ -152,6 +138,11 @@ class ConfigModelPlugin(PluginBase):
                 self.settings.set("sd_model_checkpoint", model)
             except Exception as e:
                 logging.error(e)
+
+                return procedure.new_return_values(
+                    Gimp.PDBStatusType.CALLING_ERROR,
+                    GLib.Error(message=e),
+                )
 
             Gimp.progress_end()
 
