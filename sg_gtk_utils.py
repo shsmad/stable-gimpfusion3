@@ -19,8 +19,13 @@ def add_textarea_to_container(procedure, config, argument_name, container):
     label.set_halign(Gtk.Align.START)
     container.add(label)
     label.show()
-    container.add(prompt_w)
-    prompt_w.show()
+
+    scrolled_window = Gtk.ScrolledWindow()
+    scrolled_window.add(prompt_w)
+    scrolled_window.set_min_content_height(75)
+
+    container.add(scrolled_window)
+    scrolled_window.show_all()
 
 def set_toggle_control_by(checkbox_container, elements):
     def set_toggle(cb):
