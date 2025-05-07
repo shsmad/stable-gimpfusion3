@@ -71,20 +71,22 @@ class Image2imagePlugin(PluginBase):
             mask_blur_box = dialog.fill_box("mask_blur_box", ["mask_blur"])
 
             grid.attach(width_box, 0, 0, 2, 1)
-            grid.attach(height_box, 2, 0, 2, 1)
+            grid.attach(batch_size_box, 2, 0, 1, 1)
 
-            grid.attach(seed_box, 0, 1, 1, 1)
-            grid.attach(steps_box, 1, 1, 1, 1)
-            grid.attach(cfg_scale_box, 2, 1, 1, 1)
-            grid.attach(batch_size_box, 3, 1, 1, 1)
+            grid.attach(height_box, 0, 1, 2, 1)
+            grid.attach(steps_box, 2, 1, 1, 1)
 
-            grid.attach(sampler_index_box, 0, 3, 1, 1)
-            grid.attach(denoising_strength_box, 1, 3, 1, 1)
+            grid.attach(cfg_scale_box, 0, 2, 2, 1)
+            grid.attach(seed_box, 2, 2, 1, 1)
+
+            grid.attach(resize_mode_box, 0, 3, 1, 1)
+            grid.attach(sampler_index_box, 1, 3, 1, 1)
             grid.attach(restore_faces_box, 2, 3, 1, 1)
-            grid.attach(tiling_box, 3, 3, 1, 1)
 
-            grid.attach(resize_mode_box, 0, 5, 1, 1)
-            grid.attach(mask_blur_box, 1, 5, 1, 1)
+            grid.attach(denoising_strength_box, 0, 4, 1, 1)
+            grid.attach(mask_blur_box, 1, 4, 1, 1)
+            grid.attach(tiling_box, 2, 4, 1, 1)
+
 
             grid.attach(cn1_enabled_box, 0, 6, 1, 1)
             grid.attach(cn2_enabled_box, 1, 6, 1, 1)
