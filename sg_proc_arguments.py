@@ -1,5 +1,6 @@
 from gi.repository import GObject
 
+from sg_constants import INSERT_MODES
 from sg_utils import make_choice_from_list
 
 
@@ -119,6 +120,22 @@ A value between 0.5 and 1 is optimal for maintaining image consistency.""",
         "Tiling",
         "Tiling",
         False,
+        GObject.ParamFlags.READWRITE,
+    )
+
+    procedure.add_choice_argument(
+        "insert_mode",
+        "Insert mode",
+        """How to insert generated image:
+
+Scale to fill — generated image heights and widths are stretched to match the size of selection (default)
+Insert as is — insert generated image with generation size at selection left-top coords
+Aspect fill — longest side of generated image is proportionnaly stretched to match the selection
+Aspect fit — shortest side of generated image is proportionnaly stretched to match the selection
+Use selection size — try to generate image of selection size (instead of input sizes)
+        """,
+        make_choice_from_list(INSERT_MODES),
+        INSERT_MODES[0],
         GObject.ParamFlags.READWRITE,
     )
 

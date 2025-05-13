@@ -135,6 +135,10 @@ class ConfigModelPlugin(PluginBase):
             try:
                 # self.api.post("/sdapi/v1/options", {"sd_model_checkpoint": models[model]})
                 self.api.post("/sdapi/v1/options", data={"sd_model_checkpoint": model})
+#                 forge_additional_modules
+# 0	"/stablediff/stable-diffusion-webui-forge/models/VAE/ae.safetensors"
+# 1	"/stablediff/stable-diffusion-webui-forge/models/text_encoder/clip_l.safetensors"
+# 2	"/stablediff/stable-diffusion-webui-forge/models/text_encoder/t5xxl_fp8_e4m3fn.safetensors"
                 self.settings.set("sd_model_checkpoint", model)
             except Exception as e:
                 logging.error(e)

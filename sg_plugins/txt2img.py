@@ -3,7 +3,7 @@ import random
 
 import gi
 
-from sg_constants import GENERATION_MESSAGES, MAX_BATCH_SIZE, SAMPLERS
+from sg_constants import GENERATION_MESSAGES, INSERT_MODES, MAX_BATCH_SIZE, SAMPLERS
 from sg_gtk_utils import add_textarea_to_container, set_visibility_control_by, set_visibility_of
 from sg_plugins import PluginBase
 from sg_proc_arguments import PLUGIN_FIELDS_COMMON, PLUGIN_FIELDS_CONTROLNET_OPTIONS
@@ -111,6 +111,7 @@ class Txt2imagePlugin(PluginBase):
             dialog.fill(
                 [
                     "cn_skip_annotator_layers",
+                    "insert_mode",
                 ],
             )
 
@@ -131,6 +132,9 @@ class Txt2imagePlugin(PluginBase):
         restore_faces = config.get_property("restore_faces")
         tiling = config.get_property("tiling")
 
+        insert_mode = config.get_property("insert_mode")
+        insert_mode = insert_mode if insert_mode in INSERT_MODES else INSERT_MODES[0]
+
         cn1_enabled = config.get_property("cn1_enabled")
         cn1_layer = config.get_property("cn1_layer")
         cn2_enabled = config.get_property("cn2_enabled")
@@ -138,7 +142,7 @@ class Txt2imagePlugin(PluginBase):
         cn_skip_annotator_layers = config.get_property("cn_skip_annotator_layers")
 
         success, non_empty, x1, y1, x2, y2 = Gimp.Selection.bounds(image)
-        origWidth, origHeight = x2 - x1, y2 - y1
+        selectionWidth, selectionHeight = x2 - x1, y2 - y1
 
         data = {
             "prompt": f"{prompt} {self.settings.get('prompt')}".strip(),
@@ -147,8 +151,8 @@ class Txt2imagePlugin(PluginBase):
             "batch_size": min(MAX_BATCH_SIZE, max(1, batch_size)),
             "steps": int(steps),
             "cfg_scale": float(cfg_scale),
-            "width": roundToMultiple(width, 8),
-            "height": roundToMultiple(height, 8),
+            "width": roundToMultiple(selectionWidth if insert_mode == "Use selection size" else width, 8),
+            "height": roundToMultiple(selectionHeight if insert_mode == "Use selection size" else height, 8),
             "restore_faces": restore_faces,
             "tiling": tiling,
             "denoising_strength": float(denoising_strength),
@@ -177,8 +181,9 @@ class Txt2imagePlugin(PluginBase):
             response = self.api.post("/sdapi/v1/txt2img", data)
 
             ResponseLayers(image, response, {"skip_annotator_layers": cn_skip_annotator_layers}).resize(
-                origWidth,
-                origHeight,
+                selectionWidth,
+                selectionHeight,
+                strategy=insert_mode,
             ).translate((x1, y1)).addSelectionAsMask()
 
             return procedure.new_return_values(Gimp.PDBStatusType.SUCCESS, GLib.Error())

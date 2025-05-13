@@ -7,12 +7,12 @@ import tempfile
 import gi
 import requests
 
-from sg_constants import CONTROLNET_DEFAULT_SETTINGS
+from sg_constants import CONTROLNET_DEFAULT_SETTINGS, INSERT_MODES
 
 gi.require_version("Gimp", "3.0")
 from gi.repository import Gegl, Gimp, Gio
 
-from sg_utils import roundToMultiple
+from sg_utils import aspect_resize, roundToMultiple
 
 
 class TempFiles:
@@ -57,7 +57,7 @@ class LayerData:
         else:
             self.had_parasite = True
             # TODO bytes to str
-            self.data = json.loads(''.join(chr(x) for x in parasite.get_data()))
+            self.data = json.loads("".join(chr(x) for x in parasite.get_data()))
         return self.data
 
     def save(self, data):
@@ -65,8 +65,10 @@ class LayerData:
         parasite = Gimp.Parasite.new(self.name, Gimp.PARASITE_PERSISTENT, data_as_str.encode())
         self.layer.attach_parasite(parasite)
 
+
 # GLOBALS
 layer_counter = 1
+
 
 class Layer:
     def __init__(self, layer=None):
@@ -116,7 +118,9 @@ class Layer:
 
     def resizeToMultipleOf(self, multiple):
         self.layer.scale(
-            roundToMultiple(self.layer.width, multiple), roundToMultiple(self.layer.height, multiple), False,
+            roundToMultiple(self.layer.width, multiple),
+            roundToMultiple(self.layer.height, multiple),
+            False,
         )
         return self
 
@@ -171,6 +175,7 @@ class Layer:
         self.layer.get_image().remove_layer(self.layer)
         return self
 
+
 class ResponseLayers:
     def __init__(self, img, response, options=None):
         if options is None:
@@ -184,6 +189,8 @@ class ResponseLayers:
             info = json.loads(response["info"])
             infotexts = info["infotexts"]
             seeds = info["all_seeds"]
+            self.generated_width = info["width"]
+            self.generated_height = info["height"]
             logging.debug(f"{infotexts=}")
             logging.debug(f"{seeds=}")
             total_images = len(seeds)
@@ -194,15 +201,16 @@ class ResponseLayers:
                         Layer.fromBase64(img, image)
                         .rename(f"Generated Layer {seeds[index]}")
                         .saveData(layer_data)
-                        .insertTo(img).saveAs(TempFiles().get(f"result{index}.png"))
+                        .insertTo(img)
+                        .saveAs(TempFiles().get(f"result{index}.png"))
                     )
                 elif "skip_annotator_layers" in options and not options["skip_annotator_layers"]:
                     # annotator layers
                     layer = (
-                        Layer
-                        .fromBase64(img, image)
+                        Layer.fromBase64(img, image)
                         .rename("Annotator Layer")
-                        .insertTo(img).saveAs(TempFiles().get("AnnotatorLayer.png"))
+                        .insertTo(img)
+                        .saveAs(TempFiles().get("AnnotatorLayer.png"))
                     )
                 layers.append(layer.layer)
         except Exception as e:
@@ -217,9 +225,29 @@ class ResponseLayers:
                 Layer(layer).scale(new_scale)
         return self
 
-    def resize(self, width, height):
-        for layer in self.layers:
-            Layer(layer).resize(width, height)
+    def resize(self, width, height, strategy=INSERT_MODES[0]):
+        if strategy not in INSERT_MODES:
+            strategy = INSERT_MODES[0]
+
+        if strategy == "Resize to selection":
+            for layer in self.layers:
+                Layer(layer).resize(width, height)
+            return self
+
+        # elif strategy in ("Insert as is", "Use selection size"):
+        #     return self
+        elif strategy in ("Aspect fill", "Aspect fit"):
+            w, h = aspect_resize(
+                selection_width=width,
+                selection_height=height,
+                image_width=self.generated_width,
+                image_height=self.generated_height,
+                fill=strategy == "Aspect fill",
+            )
+            for layer in self.layers:
+                Layer(layer).resize(w, h)
+            return self
+
         return self
 
     def translate(self, offset=None):
@@ -243,6 +271,7 @@ class ResponseLayers:
         for layer in self.layers:
             Layer(layer).addSelectionAsMask()
         return self
+
 
 class MyShelf:
     """GimpShelf is not available at init time, so we keep our persistent data in a json file"""
@@ -280,12 +309,13 @@ class MyShelf:
             logging.debug(e)
 
     def get(self, name, default_value=None):
-        #return self.data[name] if name in self.data else default_value
+        # return self.data[name] if name in self.data else default_value
         return self.data.get(name, default_value)
 
     def set(self, name, default_value=None):
         self.data[name] = default_value
         self.save()
+
 
 class ApiClient:
     """Simple API client used to interface with StableDiffusion JSON endpoints"""
@@ -323,6 +353,7 @@ class ApiClient:
         except Exception as ex:
             logging.exception(f"ERROR: ApiClient.get: {ex}")
 
+
 def getLayerAsBase64(layer):
     # store active_layer
     active_layers = layer.get_image().get_selected_layers()
@@ -336,6 +367,7 @@ def getLayerAsBase64(layer):
 
 def getActiveLayerAsBase64(image):
     return getLayerAsBase64(image.get_selected_layers()[0])
+
 
 def getLayerMaskAsBase64(layer):
     success, non_empty, x1, y1, x2, y2 = Gimp.Selection.bounds(layer.get_image())
@@ -377,6 +409,7 @@ def getLayerMaskAsBase64(layer):
 
 def getActiveMaskAsBase64(image):
     return getLayerMaskAsBase64(image.get_selected_layers()[0])
+
 
 def getControlNetParams(cn_layer):
     if not cn_layer:

@@ -121,3 +121,11 @@ GENERATION_MESSAGES = [
 INPAINT_FILL_MODES = [
     "fill", "original", "latent noise", "latent nothing",
 ]
+
+INSERT_MODES = [
+    "Resize to selection",
+    "Insert as is",
+    "Aspect fill",
+    "Aspect fit",
+    "Use selection size",
+]
