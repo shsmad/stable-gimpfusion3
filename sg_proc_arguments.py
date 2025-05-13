@@ -77,8 +77,8 @@ def PLUGIN_FIELDS_COMMON(procedure, samplers, selected_sampler):
     procedure.add_double_argument(
         "cfg_scale",
         "CFG Scale",
-        """Governs how closely it follows the prompt. 7 or 7.5 usually works best.
-You can increase the value if the generated image doesn’t match your prompt.
+        """Governs how closely it follows the prompt. Lower values produce more creative results.
+7 or 7.5 usually works best. You can increase the value if the generated image doesn’t match your prompt.
 
 Low numbers (0-6 ish): You're telling SD that it can ignore your prompt.
 Mid-range (6-10 ish): You're telling SD you'd like it to do what you're asking, but you don't mind a bit of variation.
@@ -92,6 +92,9 @@ High numbers (10+): We found that high cfg often results in a really bad image."
         "denoising_strength",
         "Denoising Strength",
         """Strength of image transfomation during inpainting precess.
+
+Determines how little respect the algorithm should have for image's content.
+At 0, nothing will change, and at 1 you'll get an unrelated image.
 
 High means more influence during transformation.
 A value between 0.5 and 1 is optimal for maintaining image consistency.""",

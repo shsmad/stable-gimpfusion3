@@ -22,3 +22,4 @@ Tested on Ubuntu 24.04 with PPA GIMP (no sandboxed environments like AppImage, s
 - <https://github.com/shsmad/gimp-stable-boy> X/Y plotting, Upscale
 - beauty, good skin, sharp skin, ultra detailed skin, high quality, RAW photo, analog film, 35mm photograph, 32K UHD, close-up, ultra realistic, clean for prompt, ugly, worst quality, low quality, plastic, fake, anime, cartoon, artifacts, painting, 3d for negprompt
 - при выборе flux1-dev-bnb-nf4-v2.safetensors добавить выбор ae.safetensors clip_l.safetensors t5xxl_fp16.safetensors
+- /internal/progress
