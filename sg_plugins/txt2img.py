@@ -1,14 +1,14 @@
 import logging
-import random
+import threading
 
 import gi
 
-from sg_constants import GENERATION_MESSAGES, INSERT_MODES, MAX_BATCH_SIZE, SAMPLERS
+from sg_constants import INSERT_MODES, MAX_BATCH_SIZE, SAMPLERS
 from sg_gtk_utils import add_textarea_to_container, set_visibility_control_by, set_visibility_of
 from sg_plugins import PluginBase
 from sg_proc_arguments import PLUGIN_FIELDS_COMMON, PLUGIN_FIELDS_CONTROLNET_OPTIONS
 from sg_structures import ResponseLayers, getControlNetParams
-from sg_utils import roundToMultiple
+from sg_utils import get_progress_at_background, roundToMultiple
 
 gi.require_version("Gimp", "3.0")
 gi.require_version("GimpUi", "3.0")
@@ -160,10 +160,9 @@ class Txt2imagePlugin(PluginBase):
             "sampler_index": sampler_index if sampler_index in SAMPLERS else SAMPLERS[0],
         }
 
-        try:
-            Gimp.progress_init("")
-            Gimp.progress_set_text(random.choice(GENERATION_MESSAGES))  # noqa: S311
+        Gimp.progress_init("Calling Stable Diffusion /sdapi/v1/txt2img")
 
+        try:
             controlnet_units = []
             if cn1_enabled:
                 controlnet_units.append(getControlNetParams(cn1_layer))
@@ -178,7 +177,16 @@ class Txt2imagePlugin(PluginBase):
                 }
                 data["alwayson_scripts"] = alwayson_scripts
 
+            logging.debug("starting thread")
+            thread = threading.Thread(target=get_progress_at_background, args=(self.api,), daemon=True)
+            thread.start()
+
+            logging.debug("requesting")
             response = self.api.post("/sdapi/v1/txt2img", data)
+
+            thread.join()
+
+            Gimp.progress_set_text("Inserting layers from response")
 
             if "error" in response:
                 Gimp.message(f"{response['error']}: {response.get('message')}")

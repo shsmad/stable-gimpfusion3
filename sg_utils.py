@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
+import time
 
 from typing import TYPE_CHECKING, Any
 
@@ -72,3 +73,16 @@ def aspect_resize(selection_width, selection_height, image_width, image_height, 
     scale_factor_h = selection_height / image_height
     scale_factor = max(scale_factor_w, scale_factor_h) if fill else min(scale_factor_w, scale_factor_h)
     return int(image_width * scale_factor), int(image_height * scale_factor)
+
+def get_progress_at_background(api: ApiClient) -> None:
+    progress = 0
+    job_count = -1
+    while progress < 1 and job_count != 0:
+        time.sleep(2)
+        result = api.get("/sdapi/v1/progress", params={"skip_current_image": "true"})
+        progress = result["progress"]
+        job_count = result["state"]["job_count"]
+        Gimp.progress_update(progress)
+        Gimp.progress_set_text(f"Progress: {round(progress * 100, 2)}%, ETA: {round(result['eta_relative'])}s")
+        logging.debug(f"get_progress_at_background {result=}")
+    return
