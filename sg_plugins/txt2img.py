@@ -180,6 +180,13 @@ class Txt2imagePlugin(PluginBase):
 
             response = self.api.post("/sdapi/v1/txt2img", data)
 
+            if "error" in response:
+                Gimp.message(f"{response['error']}: {response.get('message')}")
+                return procedure.new_return_values(
+                    Gimp.PDBStatusType.CALLING_ERROR,
+                    GLib.Error(message=repr(response.get("message") or response["error"])),
+                )
+
             ResponseLayers(image, response, {"skip_annotator_layers": cn_skip_annotator_layers}).resize(
                 selectionWidth,
                 selectionHeight,

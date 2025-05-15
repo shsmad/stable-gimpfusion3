@@ -97,7 +97,14 @@ Determines how little respect the algorithm should have for image's content.
 At 0, nothing will change, and at 1 you'll get an unrelated image.
 
 High means more influence during transformation.
-A value between 0.5 and 1 is optimal for maintaining image consistency.""",
+A value between 0.5 and 1 is optimal for maintaining image consistency.
+
+
+0.0: No change
+0.35: Slight change
+0.75: Quite a change
+1.0: Most changes
+""",
         0,
         1,
         0.75,
@@ -185,7 +192,16 @@ def PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes):
     procedure.add_choice_argument(
         "resize_mode",
         "Resize Mode",
-        "Resize Mode",
+        """Resize Mode
+
+Just resize: Simply resizes the image to target dimensions.The aspect ratio is not maintained, so the image will stretch or shrink if the aspect ratio of the destination size is different.
+
+Crop and resize: Crops the image to maintain aspect ratio, then resizes. The aspect ratio is maintained and the overhang is removed.
+
+Resize and fill: Resizes and fills empty areas with content. The image is scaled to fit the specified destination size while maintaining the aspect ratio. The excess area will be filled with the color of the edge of the input image.
+
+Just resize (latent upscale): Resizes in the latent space. Same as Just Resize, but uses Latent Upscale for scaling.
+        """,
         make_choice_from_list(resize_modes),
         resize_modes[0],
         GObject.ParamFlags.READWRITE,
@@ -213,7 +229,13 @@ def PLUGIN_FIELDS_INPAINTING(procedure, inpaint_fill_modes):
     procedure.add_choice_argument(
         "inpainting_fill",
         "Mask fill mode",
-        "Choose the fill content in mask",
+        """Choose the fill content in mask
+
+fill: Fills the input image with the average color within the masked area. Good for removing objects.
+original: The input image is used as is.
+latent noise: Fills the masked area with Seed-based noise. It can be used to mask an object and rewrite the background. 1 is recommended for CGF.
+latent nothing: Fills the masked area with the average color of the masked area. It can be used to mask an object and rewrite the background. 0.8 or higher is recommended for CGF.
+        """,
         make_choice_from_list(inpaint_fill_modes),
         inpaint_fill_modes[0],
         GObject.ParamFlags.READWRITE,
