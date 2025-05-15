@@ -86,7 +86,6 @@ class ConfigPlugin(PluginBase):
         file_logging = config.get_property("file_logging")
 
         logging.getLogger().setLevel(level=logging.DEBUG if debug_logging else logging.INFO)
-
         if file_logging != self.settings.get("file_logging"):
             set_logging_dest(file_logging)
 
@@ -112,6 +111,7 @@ class ConfigModelPlugin(PluginBase):
             procedure,
             models=self.settings.get("models"),
             selected_model=self.settings.get("sd_model_checkpoint"),
+            sd_modules=self.settings.get("sd_modules"),
         )
 
     def main(self, procedure, run_mode, image, drawables, config, data):
@@ -121,12 +121,28 @@ class ConfigModelPlugin(PluginBase):
 
             dialog.get_int_combo("model", GimpUi.IntStore.new(self.settings.get("models")))
 
-            dialog.fill(["model"])
+            dialog.fill(["model", "flux_encoders_mode"])
+
+            vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, homogeneous=False, spacing=10)
+            dialog.get_content_area().add(vbox)
+            vbox.show()
+
+            add_textarea_to_container(procedure, config, "flux-encoders", vbox)
 
             if not dialog.run():
                 return procedure.new_return_values(Gimp.PDBStatusType.CANCEL, GLib.Error())
 
         model = config.get_property("model")
+        flux_encoders_mode = config.get_property("flux_encoders_mode")
+        flux_encoders = config.get_property("flux-encoders")
+
+        data = {"sd_model_checkpoint": model}
+        if flux_encoders_mode == "Always add" or (
+            flux_encoders_mode == "Autoguess" and ("flux" in model.lower() or model.lower().endswith(".gguf"))
+        ):
+            data["forge_additional_modules"] = flux_encoders.splitlines()
+        elif flux_encoders_mode == "Never add":
+            data["forge_additional_modules"] = []
 
         if self.settings.get("model") != model:
             Gimp.progress_init("")
@@ -134,11 +150,7 @@ class ConfigModelPlugin(PluginBase):
 
             try:
                 # self.api.post("/sdapi/v1/options", {"sd_model_checkpoint": models[model]})
-                self.api.post("/sdapi/v1/options", data={"sd_model_checkpoint": model})
-#                 forge_additional_modules
-# 0	"/stablediff/stable-diffusion-webui-forge/models/VAE/ae.safetensors"
-# 1	"/stablediff/stable-diffusion-webui-forge/models/text_encoder/clip_l.safetensors"
-# 2	"/stablediff/stable-diffusion-webui-forge/models/text_encoder/t5xxl_fp8_e4m3fn.safetensors"
+                self.api.post("/sdapi/v1/options", data=data)
                 self.settings.set("sd_model_checkpoint", model)
             except Exception as e:
                 logging.error(e)

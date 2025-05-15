@@ -4,7 +4,7 @@ from sg_constants import INSERT_MODES
 from sg_utils import make_choice_from_list
 
 
-def PLUGIN_FIELDS_CHECKPOINT(procedure, models, selected_model):
+def PLUGIN_FIELDS_CHECKPOINT(procedure, models, selected_model, sd_modules):
     procedure.add_choice_argument(
         "model",
         "Model",
@@ -13,6 +13,44 @@ def PLUGIN_FIELDS_CHECKPOINT(procedure, models, selected_model):
         selected_model,
         GObject.ParamFlags.READWRITE,
     )
+
+    FLUX_ENCODERS_MODES = ["Autoguess", "Never add", "Always add"]
+    procedure.add_choice_argument(
+        "flux_encoders_mode",
+        "Add VAE and text encoders for Flux",
+        "Add VAE and text encoders for Flux",
+        make_choice_from_list(FLUX_ENCODERS_MODES),
+        FLUX_ENCODERS_MODES[0],
+        GObject.ParamFlags.READWRITE,
+    )
+
+    guessed_modules = [
+        module for module in sd_modules
+        if (
+            module.rsplit('/', 1)[-1]
+            in (
+                "ae.safetensors",
+                "clip_l.safetensors",
+                "t5xxl_fp8_e4m3fn.safetensors",
+            )
+            or "flux" in module.lower()
+            and (
+                "/vae/" in module.lower()
+                or "/text_encoder/" in module.lower()
+            )
+        )
+    ]
+
+    procedure.add_string_argument(
+        "flux_encoders",
+        "Flux VAEs and text encoders",
+        "Flux VAEs and text encoders",
+        "\n".join(guessed_modules),
+        GObject.ParamFlags.READWRITE,
+    )
+
+
+
 
 
 def PLUGIN_FIELDS_COMMON(procedure, samplers, selected_sampler):
