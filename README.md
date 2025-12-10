@@ -9,6 +9,18 @@ Rewriten version runs on python3 for GIMP 3. Some refactoring and UI/UX optimisa
 Tested on Ubuntu 24.04 with PPA GIMP (no sandboxed environments like AppImage, snap of flatpak) and
 [Stable Diffusion Forge](https://github.com/lllyasviel/stable-diffusion-webui-forge).
 
+# Installation
+
+- Download all `*.py` scripts including the directory `sg_plugins`,
+- In GIMP plug-ins directory create an appropriate empty subdirectory called, for example, `StableGimpfusion3`,
+  save files into your just created gimp plug-ins directory, ie:
+  - Linux: `$HOME/.gimp-2.10/plug-ins/StableGimpfusion3` or `$XDG_CONFIG_HOME/GIMP/2.10/plug-ins/StableGimpfusion3`
+  - Windows: `%APPDATA%\GIMP\2.10\plug-ins\StableGimpfusion3` or `C:\Users\{your_id}\AppData\Roaming\GIMP\2.10\plug-ins\StableGimpfusion3`
+  - OSX: `$HOME/Library/GIMP/2.10/plug-ins/StableGimpfusion3` or `$HOME/Library/Application Support/GIMP/2.10/plug-ins/StableGimpfusion3`
+- Ensure the execute bit is set on MacOS and Linux by running `chmod -R +x /StableGimpfusion3`
+- Restart Gimp, and you will see a new menu item called `GimpFusion`
+- Run script via `GimpFusion -> Config` and set the backend API URL base (should be `http://127.0.0.1:7860/` by default)
+
 ## GIMP Plugins dev docs
 
 - <https://developer.gimp.org/api/3.0/libgimp/index.html>
