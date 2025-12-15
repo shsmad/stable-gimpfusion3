@@ -61,6 +61,13 @@ class ConfigPlugin(PluginBase):
             False,
             GObject.ParamFlags.READWRITE,
         )
+        procedure.add_boolean_argument(
+            "cache_tobase64",
+            _("Cache toBase64 results"),
+            _("Enable caching of toBase64 conversions for better performance"),
+            True,
+            GObject.ParamFlags.READWRITE,
+        )
 
     def main(
         self,
@@ -88,7 +95,7 @@ class ConfigPlugin(PluginBase):
             add_textarea_to_container(procedure, config, "prompt", vbox)
             add_textarea_to_container(procedure, config, "negative-prompt", vbox)
 
-            dialog.fill(["api_base", "debug_logging", "file_logging"])
+            dialog.fill(["api_base", "debug_logging", "file_logging", "cache_tobase64"])
 
             if not dialog.run():
                 return procedure.new_return_values(Gimp.PDBStatusType.CANCEL, GLib.Error())
@@ -98,6 +105,7 @@ class ConfigPlugin(PluginBase):
         api_base = config.get_property("api_base")
         debug_logging = config.get_property("debug_logging")
         file_logging = config.get_property("file_logging")
+        cache_tobase64 = config.get_property("cache_tobase64")
 
         logging.getLogger().setLevel(level=logging.DEBUG if debug_logging else logging.INFO)
         if file_logging != self.settings.get("file_logging"):
@@ -110,6 +118,7 @@ class ConfigPlugin(PluginBase):
                 "api_base": api_base,
                 "debug_logging": debug_logging,
                 "file_logging": file_logging,
+                "cache_tobase64": cache_tobase64,
             },
         )
         return procedure.new_return_values(Gimp.PDBStatusType.SUCCESS, GLib.Error())

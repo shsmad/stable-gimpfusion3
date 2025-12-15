@@ -26,6 +26,7 @@ from sg_constants import (
     AUTHOR,
     STABLE_GIMPFUSION_DEFAULT_SETTINGS,
 )
+from sg_structures import Layer
 from sg_structures import ApiClient, MyShelf
 from sg_utils import fetch_stablediffusion_options, set_logging_dest
 
@@ -70,6 +71,9 @@ class GimpfusionPlugin(Gimp.PlugIn):
         except Exception:
             logging.exception("ERROR: DynamicDropdownData.fetch")
             settings.save({"is_server_running": False})
+
+        # Set global settings reference for Layer class cache control
+        Layer.set_global_settings(settings)
 
     def do_set_i18n(self, name: str) -> str:
         return DOMAIN

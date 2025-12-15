@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import contextlib
+import hashlib
 import json
 import logging
 import os
@@ -16,9 +17,17 @@ import requests
 from sg_constants import CONTROLNET_DEFAULT_SETTINGS, INSERT_MODES
 
 gi.require_version("Gimp", "3.0")
-from gi.repository import Gegl, Gimp, Gio
+from gi.repository import Gegl, Gimp, Gio, GLib
 
 from sg_utils import aspect_resize, roundToMultiple
+
+# Global reference to settings (set during plugin initialization)
+_global_settings = None
+
+# Cache for toBase64 results: key is (layer_id, width, height, hash), value is base64 string
+_toBase64_cache: dict[tuple[int, int, int, str], str] = {}
+_toBase64_cache_max_size = 10  # Limit cache size to prevent memory issues
+_toBase64_cache_pixel_count = 1024
 
 
 class TempFiles:
@@ -186,17 +195,187 @@ class Layer:
             return base64.b64encode(file.read()).decode()
 
     def toBase64(self):
+        """
+        Convert layer to Base64 encoded PNG string.
+        Uses caching and memory streams for optimization.
+        Caching can be disabled via settings.
+
+        Returns:
+            Base64 encoded PNG string
+        """
+
         start = time.perf_counter()
-        filepath = TempFiles().get(f"layer{self.id}.png")
-        self.saveAs(filepath)
-        end_time = time.perf_counter()
-        logging.debug(f"toBase64 time for {filepath}: {end_time - start}")
-        with open(filepath, "rb") as file:
-            return base64.b64encode(file.read()).decode()
+        cache_enabled = self._is_cache_enabled()
+
+        if not cache_enabled:
+            # Caching disabled, use direct conversion
+            try:
+                png_data = self._save_to_memory_stream()
+                result = base64.b64encode(png_data).decode()
+                end_time = time.perf_counter()
+                logging.debug(f"toBase64 (no cache) time for layer {self.id}: {end_time - start:.4f}s")
+                return result
+            except Exception as ex:
+                logging.exception(f"Error in toBase64: {ex}")
+                # Fallback to original method
+                filepath = TempFiles().get(f"layer{self.id}.png")
+                self.saveAs(filepath)
+                with open(filepath, "rb") as file:
+                    return base64.b64encode(file.read()).decode()
+
+        # Caching enabled - generate cache key
+        try:
+            width = self.layer.get_width()
+            height = self.layer.get_height()
+            layer_hash = self._get_layer_hash()
+            cache_key = (id(self.layer), width, height, layer_hash)
+
+            # Check cache
+            if cache_key in _toBase64_cache:
+                end_time = time.perf_counter()
+                logging.debug(f"toBase64 cache hit for layer {self.id}: {end_time - start:.4f}s")
+                return _toBase64_cache[cache_key]
+        except Exception as e:
+            logging.debug(f"Cache key generation failed: {e}")
+            cache_key = None
+
+        # Not in cache, generate Base64
+        try:
+            # Use optimized method for better performance
+            png_data = self._save_to_memory_stream()
+            result = base64.b64encode(png_data).decode()
+
+            # Store in cache (with size limit)
+            if cache_key:
+                if len(_toBase64_cache) < _toBase64_cache_max_size:
+                    _toBase64_cache[cache_key] = result
+                elif _toBase64_cache:
+                    first_key = next(iter(_toBase64_cache))
+                    del _toBase64_cache[first_key]
+                    _toBase64_cache[cache_key] = result
+
+            end_time = time.perf_counter()
+            logging.debug(f"toBase64 time for layer {self.id}: {end_time - start:.4f}s")
+            return result
+        except Exception as ex:
+            logging.exception(f"Error in toBase64: {ex}")
+            # Fallback to original method
+            filepath = TempFiles().get(f"layer{self.id}.png")
+            self.saveAs(filepath)
+            with open(filepath, "rb") as file:
+                return base64.b64encode(file.read()).decode()
+
+    @staticmethod
+    def clear_toBase64_cache() -> None:
+        """Clear the toBase64 cache. Useful for memory management."""
+        global _toBase64_cache
+        _toBase64_cache.clear()
+        logging.debug("toBase64 cache cleared")
+
+
+    @staticmethod
+    def set_global_settings(settings) -> None:
+        global _global_settings
+        _global_settings = settings
+
+    @staticmethod
+    def _is_cache_enabled() -> bool:
+        global _global_settings
+        if _global_settings is None:
+            return True
+        return bool(_global_settings.get("cache_tobase64", True))
 
     def remove(self):
         self.layer.get_image().remove_layer(self.layer)
         return self
+
+    def _get_layer_hash(self) -> str:
+        """
+        Generate a hash for the layer based on its properties.
+        This is used for caching toBase64 results.
+
+        Returns:
+            Hash string representing the layer state
+        """
+        try:
+            # Get basic properties
+            width = self.layer.get_width()
+            height = self.layer.get_height()
+            name = self.layer.get_name()
+
+            hash_obj = hashlib.md5()  # noqa: S324
+            hash_obj.update(f"{width}x{height}x{name}x{id(self.layer)}".encode())
+            return hash_obj.hexdigest()
+        except Exception:
+            # Ultimate fallback: use object ID
+            return str(id(self.layer))
+
+    def _save_to_memory_stream(self) -> bytes:
+        """
+        Save layer to PNG format directly to memory.
+
+        Uses file-based methods with /dev/shm (RAM filesystem) for optimal performance.
+        Direct pixel access via GEGL Buffer or get_pixels() is not available in GIMP 3.0 Python API.
+
+        Note: GIMP 3.0 file_save requires Gio.File, not Gio.OutputStream directly.
+        Using /dev/shm provides near-memory-stream performance while using the file API.
+
+        Returns:
+            PNG image data as bytes
+        """
+        # Create a new image with the layer
+        new_image = Gimp.Image.new(
+            self.layer.get_width(),
+            self.layer.get_height(),
+            Gimp.ImageBaseType.RGB,
+        )
+        layer = Gimp.Layer.new_from_drawable(self.layer, new_image)
+        new_image.insert_layer(layer, None, -1)
+
+
+        # Method: Use /dev/shm (RAM filesystem) - file in RAM, very fast
+        # This is preferred when /dev/shm is available
+        temp_path = None
+        try:
+            if os.path.exists("/dev/shm"):  # noqa: S108
+                temp_path = os.path.join("/dev/shm", f"gimpfusion_layer_{self.id}_{time.time()}.png")  # noqa: S108
+            else:
+                # Fallback to regular temp directory
+                temp_path = os.path.join(tempfile.gettempdir(), f"gimpfusion_layer_{self.id}_{time.time()}.png")
+
+            temp_file = Gio.File.new_for_path(temp_path)
+
+            Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, new_image, temp_file, None)
+
+            with open(temp_path, "rb") as f:
+                data = f.read()
+
+            return data
+        except Exception as e:
+            logging.warning(f"Failed to save to memory filesystem, using fallback: {e}")
+            temp_path = None
+            try:
+                temp_path = os.path.join(tempfile.gettempdir(), f"gimpfusion_layer_{self.id}_{time.time()}.png")
+                temp_file = Gio.File.new_for_path(temp_path)
+                Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, new_image, temp_file, None)
+                with open(temp_path, "rb") as f:
+                    data = f.read()
+                return data
+            finally:
+                # Clean up temp file immediately
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.remove(temp_path)
+                    except Exception as e:
+                        logging.debug(f"Failed to remove temp file {temp_path}: {e}")
+        finally:
+            # Clean up temp file immediately (for /dev/shm case)
+            if temp_path and os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except Exception as e:
+                    logging.debug(f"Failed to remove temp file {temp_path}: {e}")
+
 
 
 class ResponseLayers:
@@ -242,6 +421,7 @@ class ResponseLayers:
             logging.debug(f"{seeds=}")
             total_images = len(seeds)
             for index, image in enumerate(response["images"]):
+                layer = None
                 if index < total_images:
                     layer_data = {"info": infotexts[index], "seed": seeds[index]}
                     layer = (
@@ -259,7 +439,8 @@ class ResponseLayers:
                         .insertTo(img)
                         .saveAs(TempFiles().get("AnnotatorLayer.png"))
                     )
-                layers.append(layer.layer)
+                if layer:
+                    layers.append(layer.layer)
         except Exception as e:
             logging.exception(f"ResponseLayers: {e}")
 
@@ -379,7 +560,7 @@ class ApiClient:
             url = self.base_url + endpoint
             headers = headers or {"Content-Type": "application/json", "Accept": "application/json"}
 
-            logging.debug(f"POST {url}, data {data}")
+            logging.debug(f"POST {url}, data {data.keys() if data else None}")
 
             response = requests.post(url=url, params=params, headers=headers, json=data, timeout=self.timeout)
 
