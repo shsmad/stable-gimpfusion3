@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import gettext
 import locale
+import logging
 import os
 
 from collections.abc import Callable
@@ -36,7 +37,7 @@ def setup_i18n() -> Callable[[str], str]:
         translation.install()
         return translation.gettext
     except OSError as e:
-        print(f"Translation files not found: {e}")
+        logging.error(f"Translation files not found: {e}")
         import builtins
 
         def fallback_gettext(x: str) -> str:
@@ -45,7 +46,7 @@ def setup_i18n() -> Callable[[str], str]:
         builtins.__dict__["_"] = fallback_gettext
         return fallback_gettext
     except Exception as e:
-        print(f"Unexpected i18n error: {e}")
+        logging.error(f"Unexpected i18n error: {e}")
         import builtins
 
         def fallback_gettext(x: str) -> str:

@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import logging
+
+from typing import Any
 
 import gi
 
@@ -20,7 +24,7 @@ class ConfigPlugin(PluginBase):
     menu_label = _("Global")
     description = _("This is where you configure params that are shared between all API requests")
 
-    def add_arguments(self, procedure):
+    def add_arguments(self, procedure: Gimp.Procedure) -> None:
         procedure.add_string_argument(
             "prompt",
             _("Prompt Suffix"),
@@ -57,7 +61,15 @@ class ConfigPlugin(PluginBase):
             GObject.ParamFlags.READWRITE,
         )
 
-    def main(self, procedure, run_mode, image, drawables, config, data):
+    def main(
+        self,
+        procedure: Gimp.Procedure,
+        run_mode: Gimp.RunMode,
+        image: Gimp.Image,
+        drawables: list[Gimp.Drawable],
+        config: Gimp.ProcedureConfig,
+        data: Any,
+    ) -> Gimp.ProcedureReturn:
         # logging.debug(f"main run({procedure=}, {run_mode=}, {image=}, {drawables=}, {config=}, {data=})")
 
         if run_mode == Gimp.RunMode.INTERACTIVE:
@@ -107,7 +119,7 @@ class ConfigModelPlugin(PluginBase):
     menu_label = _("Change Model")
     description = _("Change the Checkpoint Model")
 
-    def add_arguments(self, procedure):
+    def add_arguments(self, procedure: Gimp.Procedure) -> None:
         PLUGIN_FIELDS_CHECKPOINT(
             procedure,
             models=self.settings.get("models"),
@@ -115,7 +127,15 @@ class ConfigModelPlugin(PluginBase):
             sd_modules=self.settings.get("sd_modules"),
         )
 
-    def main(self, procedure, run_mode, image, drawables, config, data):
+    def main(
+        self,
+        procedure: Gimp.Procedure,
+        run_mode: Gimp.RunMode,
+        image: Gimp.Image,
+        drawables: list[Gimp.Drawable],
+        config: Gimp.ProcedureConfig,
+        data: Any,
+    ) -> Gimp.ProcedureReturn:
         if run_mode == Gimp.RunMode.INTERACTIVE:
             GimpUi.init(procedure.get_name())
             dialog = GimpUi.ProcedureDialog.new(procedure, config)
@@ -154,11 +174,11 @@ class ConfigModelPlugin(PluginBase):
                 self.api.post("/sdapi/v1/options", data=data)
                 self.settings.set("sd_model_checkpoint", model)
             except Exception as e:
-                logging.error(e)
+                logging.exception(f"Error changing model: {e}")
 
                 return procedure.new_return_values(
                     Gimp.PDBStatusType.CALLING_ERROR,
-                    GLib.Error(message=e),
+                    GLib.Error(message=str(e)),
                 )
 
             Gimp.progress_end()

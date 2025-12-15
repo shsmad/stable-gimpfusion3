@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Any
 
 import gi
 
@@ -18,7 +21,7 @@ class ConfigControlnetLayerPlugin(PluginBase):
     description = _("Convert current layer to ControlNet layer or edit ControlNet Layer's options")
     sensitivity_mask = Gimp.ProcedureSensitivityMask.DRAWABLE | Gimp.ProcedureSensitivityMask.DRAWABLES
 
-    def add_arguments(self, procedure):
+    def add_arguments(self, procedure: Gimp.Procedure) -> None:
         PLUGIN_FIELDS_CONTROLNET(
             procedure,
             cn_modules=CONTROLNET_MODULES,
@@ -27,7 +30,15 @@ class ConfigControlnetLayerPlugin(PluginBase):
             control_modes=CONTROL_MODES,
         )
 
-    def main(self, procedure, run_mode, image, drawables, config, data):
+    def main(
+        self,
+        procedure: Gimp.Procedure,
+        run_mode: Gimp.RunMode,
+        image: Gimp.Image,
+        drawables: list[Gimp.Drawable],
+        config: Gimp.ProcedureConfig,
+        data: Any,
+    ) -> Gimp.ProcedureReturn:
         if run_mode == Gimp.RunMode.INTERACTIVE:
             GimpUi.init(procedure.get_name())
             dialog = GimpUi.ProcedureDialog.new(procedure, config)

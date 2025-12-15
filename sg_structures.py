@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import contextlib
 import json
@@ -21,7 +23,8 @@ from sg_utils import aspect_resize, roundToMultiple
 
 class TempFiles:
     """Context manager for temporary files with automatic cleanup"""
-    def __new__(cls):
+
+    def __new__(cls) -> TempFiles:
         if not hasattr(cls, "instance"):
             cls.instance = super().__new__(cls)
         return cls.instance
@@ -29,10 +32,10 @@ class TempFiles:
     def __init__(self) -> None:
         self.files: list[str] = []
 
-    def __enter__(self):
+    def __enter__(self) -> TempFiles:
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> bool:
         self.removeAll()
         return False
 
@@ -197,7 +200,7 @@ class Layer:
 
 
 class ResponseLayers:
-    def __init__(self, img, response, options=None):
+    def __init__(self, img: Gimp.Image, response: dict[str, Any], options: dict[str, Any] | None = None) -> None:
         if options is None:
             options = {}
         self.image = img
@@ -209,7 +212,26 @@ class ResponseLayers:
             """
             response["parameters"]
             {
-            'prompt': 'beauty, good skin, sharp skin, ultra detailed skin, high quality, RAW photo, analog film, 35mm photograph, 32K UHD, close-up, ultra realistic, clean', 'negative_prompt': '(deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation', 'styles': None, 'seed': 1, 'subseed': -1, 'subseed_strength': 0, 'seed_resize_from_h': -1, 'seed_resize_from_w': -1, 'sampler_name': None, 'scheduler': None, 'batch_size': 1, 'n_iter': 1, 'steps': 20, 'cfg_scale': 7.0, 'distilled_cfg_scale': 3.5, 'width': 2000, 'height': 3000, 'restore_faces': False, 'tiling': False, 'do_not_save_samples': False, 'do_not_save_grid': False, 'eta': None, 'denoising_strength': 0.75, 's_min_uncond': None, 's_churn': None, 's_tmax': None, 's_tmin': None, 's_noise': None, 'override_settings': None, 'override_settings_restore_afterwards': True, 'refiner_checkpoint': None, 'refiner_switch_at': None, 'disable_extra_networks': False, 'firstpass_image': None, 'comments': None, 'init_images': None, 'resize_mode': 0, 'image_cfg_scale': None, 'mask': None, 'mask_blur_x': 4, 'mask_blur_y': 4, 'mask_blur': 4, 'mask_round': True, 'inpainting_fill': 0, 'inpaint_full_res': True, 'inpaint_full_res_padding': 0, 'inpainting_mask_invert': 0, 'initial_noise_multiplier': None, 'latent_mask': None, 'force_task_id': None, 'hr_distilled_cfg': 3.5, 'sampler_index': 'Euler', 'include_init_images': False, 'script_name': None, 'script_args': [], 'send_images': True, 'save_images': False, 'alwayson_scripts': {'never oom integrated': {'args': [True, True]}, 'multidiffusion integrated': {'args': [True, 'MultiDiffusion', 768, 768, 64, 64]}}, 'infotext': None}
+            'prompt': 'beauty, good skin, sharp skin, ultra detailed skin, high quality, RAW photo, analog film,
+            35mm photograph, 32K UHD, close-up, ultra realistic, clean',
+            'negative_prompt': '(deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy,
+            extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation,
+            mutated, ugly, disgusting, blurry, amputation',
+            'styles': None, 'seed': 1, 'subseed': -1, 'subseed_strength': 0, 'seed_resize_from_h': -1,
+            'seed_resize_from_w': -1, 'sampler_name': None, 'scheduler': None, 'batch_size': 1, 'n_iter': 1,
+            'steps': 20, 'cfg_scale': 7.0, 'distilled_cfg_scale': 3.5, 'width': 2000, 'height': 3000,
+            'restore_faces': False, 'tiling': False, 'do_not_save_samples': False, 'do_not_save_grid': False,
+            'eta': None, 'denoising_strength': 0.75, 's_min_uncond': None, 's_churn': None, 's_tmax': None,
+            's_tmin': None, 's_noise': None, 'override_settings': None, 'override_settings_restore_afterwards': True,
+            'refiner_checkpoint': None, 'refiner_switch_at': None, 'disable_extra_networks': False,
+            'firstpass_image': None, 'comments': None, 'init_images': None, 'resize_mode': 0, 'image_cfg_scale': None,
+            'mask': None, 'mask_blur_x': 4, 'mask_blur_y': 4, 'mask_blur': 4, 'mask_round': True, 'inpainting_fill': 0,
+            'inpaint_full_res': True, 'inpaint_full_res_padding': 0, 'inpainting_mask_invert': 0,
+            'initial_noise_multiplier': None, 'latent_mask': None, 'force_task_id': None, 'hr_distilled_cfg': 3.5,
+            'sampler_index': 'Euler', 'include_init_images': False, 'script_name': None, 'script_args': [],
+            'send_images': True, 'save_images': False, 'alwayson_scripts': {'never oom integrated': {
+            'args': [True, True]}, 'multidiffusion integrated': {'args': [True, 'MultiDiffusion', 768, 768, 64, 64]}},
+            'infotext': None}
             """
             info = json.loads(response["info"])
             infotexts = info["infotexts"]
@@ -244,13 +266,13 @@ class ResponseLayers:
         Gimp.context_set_foreground(color)
         self.layers = layers
 
-    def scale(self, new_scale=1.0):
+    def scale(self, new_scale: float = 1.0) -> ResponseLayers:
         if new_scale != 1.0:
             for layer in self.layers:
                 Layer(layer).scale(new_scale)
         return self
 
-    def resize(self, width, height, strategy=INSERT_MODES[0]):
+    def resize(self, width: int, height: int, strategy: str = INSERT_MODES[0]) -> ResponseLayers:
         if strategy not in INSERT_MODES:
             strategy = INSERT_MODES[0]
 
@@ -275,19 +297,19 @@ class ResponseLayers:
 
         return self
 
-    def translate(self, offset=None):
+    def translate(self, offset: tuple[int, int] | None = None) -> ResponseLayers:
         if offset is not None:
             for layer in self.layers:
                 Layer(layer).translate(offset)
         return self
 
-    def insertTo(self, image=None):
+    def insertTo(self, image: Gimp.Image | None = None) -> ResponseLayers:
         image = image or self.image
         for layer in self.layers:
             Layer(layer).insertTo(image)
         return self
 
-    def addSelectionAsMask(self):
+    def addSelectionAsMask(self) -> ResponseLayers | None:
         success, non_empty, x1, y1, x2, y2 = Gimp.Selection.bounds(self.image)
         if not non_empty:
             return
@@ -301,7 +323,7 @@ class ResponseLayers:
 class MyShelf:
     """GimpShelf is not available at init time, so we keep our persistent data in a json file"""
 
-    def __init__(self, default_shelf=None):
+    def __init__(self, default_shelf: dict[str, Any] | None = None) -> None:
         if default_shelf is None:
             default_shelf = {}
         self.file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "stable_gimpfusion.json")
@@ -395,7 +417,7 @@ class ApiClient:
             raise
 
 
-def getLayerAsBase64(layer):
+def getLayerAsBase64(layer: Gimp.Layer) -> str:
     # store active_layer
     active_layers = layer.get_image().get_selected_layers()
     copy = Layer(layer).copy().insert()
@@ -406,7 +428,7 @@ def getLayerAsBase64(layer):
     return result
 
 
-def getActiveLayerAsBase64(image):
+def getActiveLayerAsBase64(image: Gimp.Image) -> str:
     return getLayerAsBase64(image.get_selected_layers()[0])
 
 

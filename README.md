@@ -64,8 +64,6 @@ msgfmt locale/ru/LC_MESSAGES/stable-gimpfusion3.po -o locale/{YOUR_LANG}/LC_MESS
 
 ### Usage examples
 
-## Примеры использования
-
 Use `_()` in code for all strings, that should be translated:
 
 ```python

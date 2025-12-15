@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import logging
 import random
+
+from typing import Any
 
 import gi
 
 from sg_constants import GENERATION_MESSAGES, INPAINT_FILL_MODES, MAX_BATCH_SIZE, RESIZE_MODES, SAMPLERS
+from sg_i18n import _
 from sg_plugins import PluginBase
 from sg_proc_arguments import (
     PLUGIN_FIELDS_COMMON,
@@ -24,7 +29,7 @@ class InpaintingPlugin(PluginBase):
     menu_label = _("Inpainting")
     description = _("Inpainting in existing image")
 
-    def add_arguments(self, procedure):
+    def add_arguments(self, procedure: Gimp.Procedure) -> None:
         # PLUGIN_FIELDS_IMG2IMG
         PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes=RESIZE_MODES)
         # PLUGIN_FIELDS_TXT2IMG(procedure)
@@ -32,7 +37,15 @@ class InpaintingPlugin(PluginBase):
         PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
         PLUGIN_FIELDS_INPAINTING(procedure, inpaint_fill_modes=INPAINT_FILL_MODES)
 
-    def main(self, procedure, run_mode, image, drawables, config, data):
+    def main(
+        self,
+        procedure: Gimp.Procedure,
+        run_mode: Gimp.RunMode,
+        image: Gimp.Image,
+        drawables: list[Gimp.Drawable],
+        config: Gimp.ProcedureConfig,
+        data: Any,
+    ) -> Gimp.ProcedureReturn:
         if run_mode == Gimp.RunMode.INTERACTIVE:
             GimpUi.init(procedure.get_name())
             dialog = GimpUi.ProcedureDialog.new(procedure, config)
@@ -118,10 +131,12 @@ class InpaintingPlugin(PluginBase):
             "tiling": tiling,
             "denoising_strength": float(denoising_strength),
             "init_images": init_images,
-            "resize_mode": RESIZE_MODES.index(resize_mode),
+            "resize_mode": RESIZE_MODES.index(resize_mode) if resize_mode in RESIZE_MODES else 0,
             "mask": mask,
             "mask_blur": mask_blur,
-            "inpainting_fill": INPAINT_FILL_MODES.index(inpainting_fill),
+            "inpainting_fill": INPAINT_FILL_MODES.index(inpainting_fill)
+            if inpainting_fill in INPAINT_FILL_MODES
+            else 0,
             "inpaint_full_res": inpaint_full_res,
             "inpaint_full_res_padding": 10,
             "inpainting_mask_invert": 1 if invert_mask else 0,
@@ -165,6 +180,7 @@ class InpaintingPlugin(PluginBase):
         finally:
             Gimp.progress_end()
             # self.cleanup()
+
 
 # class InpaintingContextPlugin(PluginBase):
 #     menu_path = "<Layers>/GimpFusion"

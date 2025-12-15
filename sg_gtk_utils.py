@@ -1,20 +1,28 @@
+from __future__ import annotations
+
 import gi
 
 gi.require_version("GimpUi", "3.0")
 gi.require_version("Gtk", "3.0")
-from gi.repository import GimpUi, Gio, GLib, Gtk
+from gi.repository import Gimp, GimpUi, Gio, GLib, Gtk
 
 from sg_i18n import _
 
 
-def set_visibility_of(elements, visible=True):
+def set_visibility_of(elements: list[Gtk.Widget], visible: bool = True) -> None:
     for element in elements:
         if visible:
             element.show()
         else:
             element.hide()
 
-def add_textarea_to_container(procedure, config, argument_name, container):
+
+def add_textarea_to_container(
+    procedure: Gimp.Procedure,
+    config: Gimp.ProcedureConfig,
+    argument_name: str,
+    container: Gtk.Container,
+) -> None:
     prompt_w = Gtk.TextView.new_with_buffer(GimpUi.prop_text_buffer_new(config, argument_name, 0))
     prompt_w.set_wrap_mode(Gtk.WrapMode.WORD)
     label = Gtk.Label(_(procedure.find_argument(argument_name).nick))
@@ -29,20 +37,23 @@ def add_textarea_to_container(procedure, config, argument_name, container):
     container.add(scrolled_window)
     scrolled_window.show_all()
 
-def set_toggle_control_by(checkbox_container, elements):
-    def set_toggle(cb):
+
+def set_toggle_control_by(checkbox_container: Gtk.Container, elements: list[Gtk.Widget]) -> None:
+    def set_toggle(cb: Gtk.ToggleButton) -> None:
         for element in elements:
             element.set_sensitive(cb.get_active())
 
     checkbox = checkbox_container.get_children()[0]
     checkbox.connect("toggled", set_toggle)
 
-def set_visibility_control_by(checkbox_container, elements):
+
+def set_visibility_control_by(checkbox_container: Gtk.Container, elements: list[Gtk.Widget]) -> None:
     checkbox = checkbox_container.get_children()[0]
     checkbox.connect("toggled", lambda cb: set_visibility_of(elements, cb.get_active()))
 
+
 class MemFile:
-    def __init__(self, filepath):
+    def __init__(self, filepath: str) -> None:
         self.stream = Gio.MemoryOutputStream.new_resizable()
         self.bytes_written = 0
         self.filepath = filepath

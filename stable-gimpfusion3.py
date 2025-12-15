@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import logging
 import os
 import sys
@@ -69,7 +71,7 @@ class GimpfusionPlugin(Gimp.PlugIn):
             logging.exception("ERROR: DynamicDropdownData.fetch")
             settings.save({"is_server_running": False})
 
-    def do_set_i18n(self, name):
+    def do_set_i18n(self, name: str) -> str:
         return DOMAIN
 
     def do_query_procedures(self):

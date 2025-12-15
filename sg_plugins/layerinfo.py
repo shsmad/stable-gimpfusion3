@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 import json
+
+from typing import Any
 
 import gi
 
@@ -18,9 +22,17 @@ class LayerInfoPlugin(PluginBase):
     description = _("Show stable gimpfusion info associated with this layer")
     sensitivity_mask = Gimp.ProcedureSensitivityMask.DRAWABLE | Gimp.ProcedureSensitivityMask.DRAWABLES
 
-    def add_arguments(self, procedure): ...
+    def add_arguments(self, procedure: Gimp.Procedure) -> None: ...
 
-    def main(self, procedure, run_mode, image, drawables, config, data):
+    def main(
+        self,
+        procedure: Gimp.Procedure,
+        run_mode: Gimp.RunMode,
+        image: Gimp.Image,
+        drawables: list[Gimp.Drawable],
+        config: Gimp.ProcedureConfig,
+        data: Any,
+    ) -> Gimp.ProcedureReturn:
         msgs = [_("Selected layers have the following data associated with them:"), ""]
 
         msgs.extend(

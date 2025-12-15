@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import logging
 import threading
+
+from typing import Any
 
 import gi
 
@@ -21,13 +25,21 @@ class Image2imagePlugin(PluginBase):
     menu_label = _("Image to image")
     description = _("Generate image based on other image")
 
-    def add_arguments(self, procedure):
+    def add_arguments(self, procedure: Gimp.Procedure) -> None:
         # PLUGIN_FIELDS_IMG2IMG(procedure)
         PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes=RESIZE_MODES)
         PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
         PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
 
-    def main(self, procedure, run_mode, image, drawables, config, data):
+    def main(
+        self,
+        procedure: Gimp.Procedure,
+        run_mode: Gimp.RunMode,
+        image: Gimp.Image,
+        drawables: list[Gimp.Drawable],
+        config: Gimp.ProcedureConfig,
+        data: Any,
+    ) -> Gimp.ProcedureReturn:
         logging.getLogger().setLevel(level=logging.DEBUG if self.settings.get("debug_logging") else logging.INFO)
 
         if run_mode == Gimp.RunMode.INTERACTIVE:
@@ -90,28 +102,29 @@ class Image2imagePlugin(PluginBase):
             grid.attach(mask_blur_box, 1, 4, 1, 1)
             grid.attach(tiling_box, 2, 4, 1, 1)
 
-
             grid.attach(cn1_enabled_box, 0, 6, 1, 1)
             grid.attach(cn2_enabled_box, 1, 6, 1, 1)
             grid.attach(cn1_layer_box, 0, 7, 1, 1)
             grid.attach(cn2_layer_box, 1, 7, 1, 1)
 
-            set_visibility_of([
-                width_box,
-                height_box,
-                steps_box,
-                cfg_scale_box,
-                restore_faces_box,
-                tiling_box,
-                cn1_enabled_box,
-                cn2_enabled_box,
-                seed_box,
-                batch_size_box,
-                sampler_index_box,
-                denoising_strength_box,
-                resize_mode_box,
-                mask_blur_box,
-            ])
+            set_visibility_of(
+                [
+                    width_box,
+                    height_box,
+                    steps_box,
+                    cfg_scale_box,
+                    restore_faces_box,
+                    tiling_box,
+                    cn1_enabled_box,
+                    cn2_enabled_box,
+                    seed_box,
+                    batch_size_box,
+                    sampler_index_box,
+                    denoising_strength_box,
+                    resize_mode_box,
+                    mask_blur_box,
+                ],
+            )
 
             set_visibility_control_by(cn1_enabled_box, [cn1_layer_box])
             set_visibility_control_by(cn2_enabled_box, [cn2_layer_box])
@@ -167,7 +180,7 @@ class Image2imagePlugin(PluginBase):
             "tiling": tiling,
             "denoising_strength": float(denoising_strength),
             "init_images": [getActiveLayerAsBase64(image)],
-            "resize_mode": RESIZE_MODES.index(resize_mode),
+            "resize_mode": RESIZE_MODES.index(resize_mode) if resize_mode in RESIZE_MODES else 0,
             "mask_blur": mask_blur,
             "sampler_index": sampler_index if sampler_index in SAMPLERS else SAMPLERS[0],
         }
@@ -186,7 +199,6 @@ class Image2imagePlugin(PluginBase):
                     },
                 }
                 data["alwayson_scripts"] = alwayson_scripts
-
 
             # Merge with existing alwayson_scripts if any
             base_scripts = {
@@ -220,7 +232,7 @@ class Image2imagePlugin(PluginBase):
                 )
 
             ResponseLayers(image, response, {"skip_annotator_layers": cn_skip_annotator_layers})
-            #.resize(selectionWidth, selectionHeight).translate((x1, y1)).addSelectionAsMask()
+            # .resize(selectionWidth, selectionHeight).translate((x1, y1)).addSelectionAsMask()
 
             return procedure.new_return_values(Gimp.PDBStatusType.SUCCESS, GLib.Error())
 

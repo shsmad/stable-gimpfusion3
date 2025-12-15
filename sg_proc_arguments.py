@@ -1,11 +1,15 @@
-from gi.repository import GObject
+from __future__ import annotations
+
+from gi.repository import Gimp, GObject
 
 from sg_constants import INSERT_MODES
 from sg_i18n import _
 from sg_utils import make_choice_from_list
 
 
-def PLUGIN_FIELDS_CHECKPOINT(procedure, models, selected_model, sd_modules):
+def PLUGIN_FIELDS_CHECKPOINT(
+    procedure: Gimp.Procedure, models: list[str], selected_model: str | None, sd_modules: list[str],
+) -> None:
     procedure.add_choice_argument(
         "model",
         _("Model"),
@@ -30,19 +34,17 @@ def PLUGIN_FIELDS_CHECKPOINT(procedure, models, selected_model, sd_modules):
     )
 
     guessed_modules = [
-        module for module in sd_modules
+        module
+        for module in sd_modules
         if (
-            module.rsplit('/', 1)[-1]
+            module.rsplit("/", 1)[-1]
             in (
                 "ae.safetensors",
                 "clip_l.safetensors",
                 "t5xxl_fp8_e4m3fn.safetensors",
             )
             or "flux" in module.lower()
-            and (
-                "/vae/" in module.lower()
-                or "/text_encoder/" in module.lower()
-            )
+            and ("/vae/" in module.lower() or "/text_encoder/" in module.lower())
         )
     ]
 
@@ -54,7 +56,8 @@ def PLUGIN_FIELDS_CHECKPOINT(procedure, models, selected_model, sd_modules):
         GObject.ParamFlags.READWRITE,
     )
 
-def PLUGIN_FIELDS_COMMON(procedure, samplers, selected_sampler):
+
+def PLUGIN_FIELDS_COMMON(procedure: Gimp.Procedure, samplers: list[str], selected_sampler: str) -> None:
     procedure.add_string_argument(
         "prompt",
         _("Prompt"),
@@ -107,11 +110,22 @@ def PLUGIN_FIELDS_COMMON(procedure, samplers, selected_sampler):
         GObject.ParamFlags.READWRITE,
     )
     procedure.add_int_argument(
-        "width", _("Width"), _("Width of the image you want to generate"), 64, 2048, 512, GObject.ParamFlags.READWRITE,
+        "width",
+        _("Width"),
+        _("Width of the image you want to generate"),
+        64,
+        2048,
+        512,
+        GObject.ParamFlags.READWRITE,
     )
     procedure.add_int_argument(
-        "height", _("Height"), _("Height of the image that you want to generate"),
-        64, 2048, 512, GObject.ParamFlags.READWRITE,
+        "height",
+        _("Height"),
+        _("Height of the image that you want to generate"),
+        64,
+        2048,
+        512,
+        GObject.ParamFlags.READWRITE,
     )
     procedure.add_double_argument(
         "cfg_scale",
@@ -189,7 +203,7 @@ Use selection size — try to generate image of selection size (instead of input
     )
 
 
-def PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure):
+def PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure: Gimp.Procedure) -> None:
     procedure.add_boolean_argument(
         "cn1_enabled",
         _("Enable ControlNet 1"),
@@ -227,7 +241,7 @@ def PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure):
     )
 
 
-def PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes):
+def PLUGIN_FIELDS_RESIZE_MODE(procedure: Gimp.Procedure, resize_modes: list[str]) -> None:
     procedure.add_choice_argument(
         "resize_mode",
         _("Resize Mode"),
@@ -240,14 +254,14 @@ Crop and resize: Crops the image to maintain aspect ratio, then resizes. The asp
 Resize and fill: Resizes and fills empty areas with content. The image is scaled to fit the specified destination size while maintaining the aspect ratio. The excess area will be filled with the color of the edge of the input image.
 
 Just resize (latent upscale): Resizes in the latent space. Same as Just Resize, but uses Latent Upscale for scaling.
-        """),
+        """),  # noqa: E501
         make_choice_from_list(resize_modes),
         resize_modes[0],
         GObject.ParamFlags.READWRITE,
     )
 
 
-def PLUGIN_FIELDS_INPAINTING(procedure, inpaint_fill_modes):
+def PLUGIN_FIELDS_INPAINTING(procedure: Gimp.Procedure, inpaint_fill_modes: list[str]) -> None:
     procedure.add_boolean_argument(
         "invert_mask",
         _("Invert Mask"),
@@ -274,14 +288,20 @@ fill: Fills the input image with the average color within the masked area. Good 
 original: The input image is used as is.
 latent noise: Fills the masked area with Seed-based noise. It can be used to mask an object and rewrite the background. 1 is recommended for CGF.
 latent nothing: Fills the masked area with the average color of the masked area. It can be used to mask an object and rewrite the background. 0.8 or higher is recommended for CGF.
-        """),
+        """),  # noqa: E501
         make_choice_from_list(inpaint_fill_modes),
         inpaint_fill_modes[0],
         GObject.ParamFlags.READWRITE,
     )
 
 
-def PLUGIN_FIELDS_CONTROLNET(procedure, cn_modules, cn_models, cn_resize_modes, control_modes):
+def PLUGIN_FIELDS_CONTROLNET(
+    procedure: Gimp.Procedure,
+    cn_modules: list[str],
+    cn_models: list[str],
+    cn_resize_modes: list[str],
+    control_modes: list[str],
+) -> None:
     procedure.add_choice_argument(
         "module",
         _("Module"),
@@ -349,7 +369,9 @@ By default it is 1 and it will deviate from the control map as it gets closer to
         1,
         GObject.ParamFlags.READWRITE,
     )
-    procedure.add_double_argument("guidance", _("Guidance"), _("Guidance for ControlNet"), 0, 1, 1, GObject.ParamFlags.READWRITE)
+    procedure.add_double_argument(
+        "guidance", _("Guidance"), _("Guidance for ControlNet"), 0, 1, 1, GObject.ParamFlags.READWRITE,
+    )
     procedure.add_int_argument(
         "processor_res",
         _("Processor Resolution"),
@@ -359,5 +381,9 @@ By default it is 1 and it will deviate from the control map as it gets closer to
         512,
         GObject.ParamFlags.READWRITE,
     )
-    procedure.add_int_argument("threshold_a", _("Threshold A"), _("Threshold A for ControlNet"), 64, 2048, 64, GObject.ParamFlags.READWRITE)
-    procedure.add_int_argument("threshold_b", _("Threshold B"), _("Threshold B for ControlNet"), 64, 2048, 64, GObject.ParamFlags.READWRITE)
+    procedure.add_int_argument(
+        "threshold_a", _("Threshold A"), _("Threshold A for ControlNet"), 64, 2048, 64, GObject.ParamFlags.READWRITE,
+    )
+    procedure.add_int_argument(
+        "threshold_b", _("Threshold B"), _("Threshold B for ControlNet"), 64, 2048, 64, GObject.ParamFlags.READWRITE,
+    )

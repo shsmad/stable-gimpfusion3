@@ -17,24 +17,24 @@ from gi.repository import Gimp
 
 
 def make_choice_from_dict(data: dict[str, Any]) -> Gimp.Choice:
-    choise = Gimp.Choice.new()
+    choice = Gimp.Choice.new()
     # nick, id, label, help
     for key, value in data.items():
-        choise.add(value, key, value, value)
+        choice.add(value, key, value, value)
 
-    return choise
+    return choice
 
 
 def make_choice_from_list(data: list[str]) -> Gimp.Choice:
-    choise = Gimp.Choice.new()
+    choice = Gimp.Choice.new()
     # nick, id, label, help
     for key, value in enumerate(data):
-        choise.add(value, key, value, value)
+        choice.add(value, key, value, value)
 
-    return choise
+    return choice
 
 
-def roundToMultiple(value, multiple):
+def roundToMultiple(value: float | int, multiple: int) -> int:
     return multiple * round(float(value) / multiple)
 
 
@@ -68,11 +68,19 @@ def set_logging_dest(use_file_logging: bool) -> None:
         root_logger.removeHandler(old_handler)
     root_logger.addHandler(new_handler)
 
-def aspect_resize(selection_width, selection_height, image_width, image_height, fill=False):
+
+def aspect_resize(
+    selection_width: int,
+    selection_height: int,
+    image_width: int,
+    image_height: int,
+    fill: bool = False,
+) -> tuple[int, int]:
     scale_factor_w = selection_width / image_width
     scale_factor_h = selection_height / image_height
     scale_factor = max(scale_factor_w, scale_factor_h) if fill else min(scale_factor_w, scale_factor_h)
     return int(image_width * scale_factor), int(image_height * scale_factor)
+
 
 def get_progress_at_background(api: ApiClient) -> None:
     progress = 0

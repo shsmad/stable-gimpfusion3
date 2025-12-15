@@ -1,12 +1,16 @@
+from __future__ import annotations
+
 import logging
 import threading
+
+from typing import Any
 
 import gi
 
 from sg_constants import INSERT_MODES, MAX_BATCH_SIZE, SAMPLERS
 from sg_gtk_utils import add_textarea_to_container, set_visibility_control_by, set_visibility_of
-from sg_plugins import PluginBase
 from sg_i18n import _
+from sg_plugins import PluginBase
 from sg_proc_arguments import PLUGIN_FIELDS_COMMON, PLUGIN_FIELDS_CONTROLNET_OPTIONS
 from sg_structures import ResponseLayers, getControlNetParams
 from sg_utils import get_progress_at_background, roundToMultiple
@@ -21,12 +25,20 @@ class Txt2imagePlugin(PluginBase):
     menu_label = _("Text to image")
     description = _("Generate image from text")
 
-    def add_arguments(self, procedure):
+    def add_arguments(self, procedure: Gimp.Procedure) -> None:
         # PLUGIN_FIELDS_TXT2IMG =
         PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
         PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
 
-    def main(self, procedure, run_mode, image, drawables, config, data):
+    def main(
+        self,
+        procedure: Gimp.Procedure,
+        run_mode: Gimp.RunMode,
+        image: Gimp.Image,
+        drawables: list[Gimp.Drawable],
+        config: Gimp.ProcedureConfig,
+        data: Any,
+    ) -> Gimp.ProcedureReturn:
         if run_mode == Gimp.RunMode.INTERACTIVE:
             GimpUi.init(procedure.get_name())
             dialog = GimpUi.ProcedureDialog.new(procedure, config)
@@ -103,7 +115,7 @@ class Txt2imagePlugin(PluginBase):
                     batch_size_box,
                     sampler_index_box,
                     denoising_strength_box,
-                ]
+                ],
             )
 
             set_visibility_control_by(cn1_enabled_box, [cn1_layer_box])
