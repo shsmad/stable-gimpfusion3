@@ -2,6 +2,7 @@
 import gi
 
 from sg_constants import CONTROL_MODES, CONTROLNET_MODULES, CONTROLNET_RESIZE_MODES
+from sg_i18n import _
 from sg_plugins import PluginBase
 from sg_proc_arguments import PLUGIN_FIELDS_CONTROLNET
 from sg_structures import Layer
@@ -13,8 +14,8 @@ from gi.repository import Gimp, GimpUi, GLib
 
 class ConfigControlnetLayerPlugin(PluginBase):
     menu_path = "<Image>/GimpFusion"
-    menu_label = "Active layer as ControlNet"
-    description = "Convert current layer to ControlNet layer or edit ControlNet Layer's options"
+    menu_label = _("Active layer as ControlNet")
+    description = _("Convert current layer to ControlNet layer or edit ControlNet Layer's options")
     sensitivity_mask = Gimp.ProcedureSensitivityMask.DRAWABLE | Gimp.ProcedureSensitivityMask.DRAWABLES
 
     def add_arguments(self, procedure):

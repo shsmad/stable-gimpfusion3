@@ -21,8 +21,8 @@ from gi.repository import Gimp, GimpUi, GLib
 
 class InpaintingPlugin(PluginBase):
     menu_path = "<Image>/GimpFusion"
-    menu_label = "Inpainting"
-    description = "Inpainting"
+    menu_label = _("Inpainting")
+    description = _("Inpainting in existing image")
 
     def add_arguments(self, procedure):
         # PLUGIN_FIELDS_IMG2IMG
@@ -102,7 +102,7 @@ class InpaintingPlugin(PluginBase):
         if not mask:
             return procedure.new_return_values(
                 Gimp.PDBStatusType.CALLING_ERROR,
-                GLib.Error(message="Inpainting must use either a selection or layer mask"),
+                GLib.Error(message=_("Inpainting must use either a selection or layer mask")),
             )
 
         data = {

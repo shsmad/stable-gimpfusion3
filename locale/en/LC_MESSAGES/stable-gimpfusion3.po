@@ -1,0 +1,633 @@
+# English translations for stable-gimpfusion3 package.
+# Copyright (C) 2025 shsmad
+# This file is distributed under the same license as the stable-gimpfusion3 package.
+# shsmad <shsmad@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: stable-gimpfusion3 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-15 11:42+0300\n"
+"PO-Revision-Date: 2025-12-15 11:18+0300\n"
+"Last-Translator: shsmad <shsmad@gmail.com>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: sg_plugins/config_controlnet.py:17
+msgid "Active layer as ControlNet"
+msgstr "Active layer as ControlNet"
+
+#: sg_plugins/config_controlnet.py:18
+msgid ""
+"Convert current layer to ControlNet layer or edit ControlNet Layer's options"
+msgstr ""
+"Convert current layer to ControlNet layer or edit ControlNet Layer's options"
+
+#: sg_plugins/config.py:20
+msgid "Global"
+msgstr "Global"
+
+#: sg_plugins/config.py:21
+msgid ""
+"This is where you configure params that are shared between all API requests"
+msgstr ""
+"This is where you configure params that are shared between all API requests"
+
+#: sg_plugins/config.py:26
+msgid "Prompt Suffix"
+msgstr "Prompt Suffix"
+
+#: sg_plugins/config.py:27
+msgid "Prompt Suffix to add to the prompt automatically"
+msgstr ""
+
+#: sg_plugins/config.py:33
+msgid "Negative Prompt Suffix"
+msgstr "Negative Prompt Suffix"
+
+#: sg_plugins/config.py:34
+msgid "Negative Prompt Suffix to add to the negative prompt automatically"
+msgstr ""
+
+#: sg_plugins/config.py:40
+msgid "Backend API URL base"
+msgstr "Backend API URL base"
+
+#: sg_plugins/config.py:41
+#, fuzzy
+msgid "Backend API URL base to use for requests"
+msgstr "Backend API URL base"
+
+#: sg_plugins/config.py:47
+msgid "Debug logging"
+msgstr "Debug logging"
+
+#: sg_plugins/config.py:48
+msgid "INFO if not set, DEBUG if set logging level"
+msgstr "INFO if not set, DEBUG if set logging level"
+
+#: sg_plugins/config.py:54
+msgid "Log to file"
+msgstr "Log to file"
+
+#: sg_plugins/config.py:55
+msgid "Log to file or console"
+msgstr "Log to file or console"
+
+#: sg_plugins/config.py:65
+msgid "Global gimpfusion settings"
+msgstr "Global gimpfusion settings"
+
+#: sg_plugins/config.py:107
+msgid "Change Model"
+msgstr "Change Model"
+
+#: sg_plugins/config.py:108
+msgid "Change the Checkpoint Model"
+msgstr "Change the Checkpoint Model"
+
+#: sg_plugins/config.py:150
+msgid "Changing model..."
+msgstr "Changing model..."
+
+#: sg_plugins/img2img.py:21
+msgid "Image to image"
+msgstr "Image to image"
+
+#: sg_plugins/img2img.py:22
+msgid "Generate image based on other image"
+msgstr ""
+
+#: sg_plugins/img2img.py:155
+msgid "Saving active layer as base64"
+msgstr "Saving active layer as base64"
+
+#: sg_plugins/img2img.py:175
+msgid "Calling Stable Diffusion /sdapi/v1/img2img"
+msgstr "Calling Stable Diffusion /sdapi/v1/img2img"
+
+#: sg_plugins/img2img.py:213 sg_plugins/txt2img.py:192
+msgid "Inserting layers from response"
+msgstr "Inserting layers from response"
+
+#: sg_plugins/inpainting.py:24
+msgid "Inpainting"
+msgstr "Inpainting"
+
+#: sg_plugins/inpainting.py:25
+msgid "Inpainting in existing image"
+msgstr ""
+
+#: sg_plugins/inpainting.py:105
+msgid "Inpainting must use either a selection or layer mask"
+msgstr "Inpainting must use either a selection or layer mask"
+
+#: sg_plugins/layerinfo.py:17
+msgid "Layer Info"
+msgstr "Layer Info"
+
+#: sg_plugins/layerinfo.py:18
+msgid "Show stable gimpfusion info associated with this layer"
+msgstr "Show stable gimpfusion info associated with this layer"
+
+#: sg_plugins/layerinfo.py:24
+msgid "Selected layers have the following data associated with them:"
+msgstr "Selected layers have the following data associated with them:"
+
+#: sg_plugins/txt2img.py:21
+msgid "Text to image"
+msgstr "Text to image"
+
+#: sg_plugins/txt2img.py:22
+msgid "Generate image from text"
+msgstr ""
+
+#: sg_plugins/txt2img.py:166
+msgid "Calling Stable Diffusion /sdapi/v1/txt2img"
+msgstr "Calling Stable Diffusion /sdapi/v1/txt2img"
+
+#: sg_proc_arguments.py:11 sg_proc_arguments.py:295
+msgid "Model"
+msgstr "Model"
+
+#: sg_proc_arguments.py:12
+msgid "Model to use for inference"
+msgstr ""
+
+#: sg_proc_arguments.py:21
+msgid "Add VAE and text encoders for Flux"
+msgstr "Add VAE and text encoders for Flux"
+
+#: sg_proc_arguments.py:22
+msgid ""
+"Add VAE and text encoders for Flux-based models:\n"
+"\n"
+"          Autoguess: Flux VAEs and text encoders will be added automatically "
+"based on model name\n"
+"          Never add: Flux VAEs and text encoders will never be added\n"
+"          Always add: Flux VAEs and text encoders will always be added"
+msgstr ""
+
+#: sg_proc_arguments.py:51
+msgid "Flux VAEs and text encoders"
+msgstr "Flux VAEs and text encoders"
+
+#: sg_proc_arguments.py:52
+#, fuzzy
+msgid "Flux VAEs and text encoders to use for Flux-based models"
+msgstr "Add VAE and text encoders for Flux"
+
+#: sg_proc_arguments.py:60
+msgid "Prompt"
+msgstr "Prompt"
+
+#: sg_proc_arguments.py:61
+msgid "A text string that describes the image you want to generate"
+msgstr "A text string that describes the image you want to generate"
+
+#: sg_proc_arguments.py:67
+msgid "Negative Prompt"
+msgstr "Negative Prompt"
+
+#: sg_proc_arguments.py:68
+msgid "A text description on what you don't want to see in the image "
+msgstr "A text description on what you don't want to see in the image "
+
+#: sg_proc_arguments.py:74
+msgid "Seed"
+msgstr "Seed"
+
+#: sg_proc_arguments.py:75
+msgid ""
+"Value that determines the output of a random number generator (0 or -1 for "
+"random)"
+msgstr ""
+"Value that determines the output of a random number generator (0 or -1 for "
+"random)"
+
+#: sg_proc_arguments.py:83
+msgid "Batch count"
+msgstr "Batch count"
+
+#: sg_proc_arguments.py:84
+msgid "Specifies the number of results you want to get."
+msgstr "Specifies the number of results you want to get."
+
+#: sg_proc_arguments.py:92
+msgid "Steps"
+msgstr "Steps"
+
+#: sg_proc_arguments.py:93
+msgid ""
+"The number of denoising steps used by the AI model when generating an image "
+"from the text prompt.\n"
+"        A higher number results in longer generation time, and does not "
+"necessarily guarantee higher image quality."
+msgstr ""
+"The number of denoising steps used by the AI model when generating an image "
+"from the text prompt.\n"
+"        A higher number results in longer generation time, and does not "
+"necessarily guarantee higher image quality."
+
+#: sg_proc_arguments.py:102
+msgid "Mask Blur"
+msgstr "Mask Blur"
+
+#: sg_proc_arguments.py:103
+msgid "Feathering of a mask (from edges to inside the mask)"
+msgstr "Feathering of a mask (from edges to inside the mask)"
+
+#: sg_proc_arguments.py:110
+msgid "Width"
+msgstr "Width"
+
+#: sg_proc_arguments.py:110
+msgid "Width of the image you want to generate"
+msgstr "Width of the image you want to generate"
+
+#: sg_proc_arguments.py:113
+msgid "Height"
+msgstr "Height"
+
+#: sg_proc_arguments.py:113
+msgid "Height of the image that you want to generate"
+msgstr "Height of the image that you want to generate"
+
+#: sg_proc_arguments.py:118
+msgid "CFG Scale"
+msgstr "CFG Scale"
+
+#: sg_proc_arguments.py:119
+msgid ""
+"Governs how closely it follows the prompt. Lower values produce more "
+"creative results.\n"
+"7 or 7.5 usually works best. You can increase the value if the generated "
+"image doesn’t match your prompt.\n"
+"\n"
+"Low numbers (0-6 ish): You're telling SD that it can ignore your prompt.\n"
+"Mid-range (6-10 ish): You're telling SD you'd like it to do what you're "
+"asking, but you don't mind a bit of variation.\n"
+"High numbers (10+): We found that high cfg often results in a really bad "
+"image."
+msgstr ""
+"Governs how closely it follows the prompt. Lower values produce more "
+"creative results.\n"
+"7 or 7.5 usually works best. You can increase the value if the generated "
+"image doesn’t match your prompt.\n"
+"\n"
+"Low numbers (0-6 ish): You're telling SD that it can ignore your prompt.\n"
+"Mid-range (6-10 ish): You're telling SD you'd like it to do what you're "
+"asking, but you don't mind a bit of variation.\n"
+"High numbers (10+): We found that high cfg often results in a really bad "
+"image."
+
+#: sg_proc_arguments.py:132
+msgid "Denoising Strength"
+msgstr "Denoising Strength"
+
+#: sg_proc_arguments.py:133
+msgid ""
+"Strength of image transfomation during inpainting precess.\n"
+"\n"
+"Determines how little respect the algorithm should have for image's "
+"content.\n"
+"At 0, nothing will change, and at 1 you'll get an unrelated image.\n"
+"\n"
+"High means more influence during transformation.\n"
+"A value between 0.5 and 1 is optimal for maintaining image consistency.\n"
+"\n"
+"\n"
+"0.0: No change\n"
+"0.35: Slight change\n"
+"0.75: Quite a change\n"
+"1.0: Most changes\n"
+msgstr ""
+"Strength of image transfomation during inpainting precess.\n"
+"\n"
+"Determines how little respect the algorithm should have for image's "
+"content.\n"
+"At 0, nothing will change, and at 1 you'll get an unrelated image.\n"
+"\n"
+"High means more influence during transformation.\n"
+"A value between 0.5 and 1 is optimal for maintaining image consistency.\n"
+"\n"
+"\n"
+"0.0: No change\n"
+"0.35: Slight change\n"
+"0.75: Quite a change\n"
+"1.0: Most changes\n"
+
+#: sg_proc_arguments.py:154
+msgid "Sampler"
+msgstr "Sampler"
+
+#: sg_proc_arguments.py:155
+#, fuzzy
+msgid "Sampler to use"
+msgstr "Sampler"
+
+#: sg_proc_arguments.py:162
+msgid "Restore faces"
+msgstr "Restore faces"
+
+#: sg_proc_arguments.py:163
+msgid "Use GFPGAN / CodeFormer to restore faces"
+msgstr "Use GFPGAN / CodeFormer to restore faces"
+
+#: sg_proc_arguments.py:169
+msgid "Tiling"
+msgstr "Tiling"
+
+#: sg_proc_arguments.py:170
+msgid "Tiling will improve image quality and speed, but may cause artifacts"
+msgstr ""
+
+#: sg_proc_arguments.py:177
+msgid "Insert mode"
+msgstr "Insert mode"
+
+#: sg_proc_arguments.py:178
+msgid ""
+"How to insert generated image:\n"
+"\n"
+"Scale to fill — generated image heights and widths are stretched to match "
+"the size of selection (default)\n"
+"Insert as is — insert generated image with generation size at selection left-"
+"top coords\n"
+"Aspect fill — longest side of generated image is proportionnaly stretched to "
+"match the selection\n"
+"Aspect fit — shortest side of generated image is proportionnaly stretched to "
+"match the selection\n"
+"Use selection size — try to generate image of selection size (instead of "
+"input sizes)\n"
+"        "
+msgstr ""
+"How to insert generated image:\n"
+"\n"
+"Scale to fill — generated image heights and widths are stretched to match "
+"the size of selection (default)\n"
+"Insert as is — insert generated image with generation size at selection left-"
+"top coords\n"
+"Aspect fill — longest side of generated image is proportionnaly stretched to "
+"match the selection\n"
+"Aspect fit — shortest side of generated image is proportionnaly stretched to "
+"match the selection\n"
+"Use selection size — try to generate image of selection size (instead of "
+"input sizes)\n"
+"        "
+
+#: sg_proc_arguments.py:195
+msgid "Enable ControlNet 1"
+msgstr "Enable ControlNet 1"
+
+#: sg_proc_arguments.py:196
+#, fuzzy
+msgid "Enable ControlNet 1 for generation"
+msgstr "Enable ControlNet 1"
+
+#: sg_proc_arguments.py:202
+msgid "ControlNet 1 Layer"
+msgstr "ControlNet 1 Layer"
+
+#: sg_proc_arguments.py:203
+#, fuzzy
+msgid "ControlNet 1 Layer for generation"
+msgstr "ControlNet 1 Layer"
+
+#: sg_proc_arguments.py:209
+msgid "Enable ControlNet 2"
+msgstr "Enable ControlNet 2"
+
+#: sg_proc_arguments.py:210
+#, fuzzy
+msgid "Enable ControlNet 2 for generation"
+msgstr "Enable ControlNet 2"
+
+#: sg_proc_arguments.py:216
+msgid "ControlNet 2 Layer"
+msgstr "ControlNet 2 Layer"
+
+#: sg_proc_arguments.py:217
+#, fuzzy
+msgid "ControlNet 2 Layer for generation"
+msgstr "ControlNet 2 Layer"
+
+#: sg_proc_arguments.py:223
+msgid "Skip annotator layers"
+msgstr "Skip annotator layers"
+
+#: sg_proc_arguments.py:224
+msgid "Skip annotator layers (something that I don't know what it does)"
+msgstr ""
+
+#: sg_proc_arguments.py:233 sg_proc_arguments.py:313
+msgid "Resize Mode"
+msgstr "Resize Mode"
+
+#: sg_proc_arguments.py:234
+msgid ""
+"Resize Mode\n"
+"\n"
+"Just resize: Simply resizes the image to target dimensions.The aspect ratio "
+"is not maintained, so the image will stretch or shrink if the aspect ratio "
+"of the destination size is different.\n"
+"\n"
+"Crop and resize: Crops the image to maintain aspect ratio, then resizes. The "
+"aspect ratio is maintained and the overhang is removed.\n"
+"\n"
+"Resize and fill: Resizes and fills empty areas with content. The image is "
+"scaled to fit the specified destination size while maintaining the aspect "
+"ratio. The excess area will be filled with the color of the edge of the "
+"input image.\n"
+"\n"
+"Just resize (latent upscale): Resizes in the latent space. Same as Just "
+"Resize, but uses Latent Upscale for scaling.\n"
+"        "
+msgstr ""
+"Resize Mode\n"
+"\n"
+"Just resize: Simply resizes the image to target dimensions.The aspect ratio "
+"is not maintained, so the image will stretch or shrink if the aspect ratio "
+"of the destination size is different.\n"
+"\n"
+"Crop and resize: Crops the image to maintain aspect ratio, then resizes. The "
+"aspect ratio is maintained and the overhang is removed.\n"
+"\n"
+"Resize and fill: Resizes and fills empty areas with content. The image is "
+"scaled to fit the specified destination size while maintaining the aspect "
+"ratio. The excess area will be filled with the color of the edge of the "
+"input image.\n"
+"\n"
+"Just resize (latent upscale): Resizes in the latent space. Same as Just "
+"Resize, but uses Latent Upscale for scaling.\n"
+"        "
+
+#: sg_proc_arguments.py:253
+msgid "Invert Mask"
+msgstr "Invert Mask"
+
+#: sg_proc_arguments.py:254
+msgid ""
+"Determines whether you want to inpaint the masked object or outside of the "
+"masked object"
+msgstr ""
+"Determines whether you want to inpaint the masked object or outside of the "
+"masked object"
+
+#: sg_proc_arguments.py:260
+msgid "Inpaint Whole Picture"
+msgstr "Inpaint Whole Picture"
+
+#: sg_proc_arguments.py:261
+msgid ""
+"Refers to the inpaint area. It can be either true or false.\n"
+"\n"
+"        If set to true, inpaint area will be the same resolution as the "
+"starting image.\n"
+"        If set to false, inpaint area will stretch to fit the starting image."
+msgstr ""
+"Refers to the inpaint area. It can be either true or false.\n"
+"\n"
+"        If set to true, inpaint area will be the same resolution as the "
+"starting image.\n"
+"        If set to false, inpaint area will stretch to fit the starting image."
+
+#: sg_proc_arguments.py:270
+msgid "Mask fill mode"
+msgstr "Mask fill mode"
+
+#: sg_proc_arguments.py:271
+msgid ""
+"Choose the fill content in mask\n"
+"\n"
+"fill: Fills the input image with the average color within the masked area. "
+"Good for removing objects.\n"
+"original: The input image is used as is.\n"
+"latent noise: Fills the masked area with Seed-based noise. It can be used to "
+"mask an object and rewrite the background. 1 is recommended for CGF.\n"
+"latent nothing: Fills the masked area with the average color of the masked "
+"area. It can be used to mask an object and rewrite the background. 0.8 or "
+"higher is recommended for CGF.\n"
+"        "
+msgstr ""
+"Choose the fill content in mask\n"
+"\n"
+"fill: Fills the input image with the average color within the masked area. "
+"Good for removing objects.\n"
+"original: The input image is used as is.\n"
+"latent noise: Fills the masked area with Seed-based noise. It can be used to "
+"mask an object and rewrite the background. 1 is recommended for CGF.\n"
+"latent nothing: Fills the masked area with the average color of the masked "
+"area. It can be used to mask an object and rewrite the background. 0.8 or "
+"higher is recommended for CGF.\n"
+"        "
+
+#: sg_proc_arguments.py:287
+msgid "Module"
+msgstr "Module"
+
+#: sg_proc_arguments.py:288
+#, fuzzy
+msgid "Module to use for controlnet"
+msgstr "Log to file or console"
+
+#: sg_proc_arguments.py:296
+#, fuzzy
+msgid "Model to use for controlnet"
+msgstr "Log to file or console"
+
+#: sg_proc_arguments.py:303
+msgid "Weight"
+msgstr "Weight"
+
+#: sg_proc_arguments.py:304
+msgid ""
+"Determines how closely the control map should follow the prompt.\n"
+"By default it is 1 and it will deviate from the control map as it gets "
+"closer to 0"
+msgstr ""
+"Determines how closely the control map should follow the prompt.\n"
+"By default it is 1 and it will deviate from the control map as it gets "
+"closer to 0"
+
+#: sg_proc_arguments.py:314
+#, fuzzy
+msgid "Resize Mode for ControlNet"
+msgstr "Active layer as ControlNet"
+
+#: sg_proc_arguments.py:321
+msgid "Low VRAM"
+msgstr "Low VRAM"
+
+#: sg_proc_arguments.py:322
+msgid "Only recommended if you have less than 8gb VRAM"
+msgstr "Only recommended if you have less than 8gb VRAM"
+
+#: sg_proc_arguments.py:328
+msgid "Control Mode"
+msgstr "Control Mode"
+
+#: sg_proc_arguments.py:329
+#, fuzzy
+msgid "Control Mode for ControlNet"
+msgstr "Control Mode"
+
+#: sg_proc_arguments.py:336
+msgid "Guidance Start (T)"
+msgstr "Guidance Start (T)"
+
+#: sg_proc_arguments.py:337
+#, fuzzy
+msgid "Guidance Start (T) for ControlNet"
+msgstr "Guidance Start (T)"
+
+#: sg_proc_arguments.py:345
+msgid "Guidance End (T)"
+msgstr "Guidance End (T)"
+
+#: sg_proc_arguments.py:346
+#, fuzzy
+msgid "Guidance End (T) for ControlNet"
+msgstr "Guidance End (T)"
+
+#: sg_proc_arguments.py:352
+#, fuzzy
+msgid "Guidance"
+msgstr "Guidance End (T)"
+
+#: sg_proc_arguments.py:352
+#, fuzzy
+msgid "Guidance for ControlNet"
+msgstr "Enable ControlNet 1"
+
+#: sg_proc_arguments.py:355
+msgid "Processor Resolution"
+msgstr "Processor Resolution"
+
+#: sg_proc_arguments.py:356
+msgid ""
+"set this to 512. There’s an ongoing bug that results in the cv2 error if "
+"it’s not set"
+msgstr ""
+"set this to 512. There’s an ongoing bug that results in the cv2 error if "
+"it’s not set"
+
+#: sg_proc_arguments.py:362
+msgid "Threshold A"
+msgstr ""
+
+#: sg_proc_arguments.py:362
+msgid "Threshold A for ControlNet"
+msgstr ""
+
+#: sg_proc_arguments.py:363
+msgid "Threshold B"
+msgstr ""
+
+#: sg_proc_arguments.py:363
+msgid "Threshold B for ControlNet"
+msgstr ""

@@ -5,7 +5,8 @@ import logging
 import os
 import tempfile
 import time
-from typing import Any, Optional
+
+from typing import Any
 
 import gi
 import requests
@@ -55,7 +56,7 @@ class TempFiles:
 
 
 class LayerData:
-    def __init__(self, layer: Gimp.Layer, defaults: Optional[dict[str, Any]] = None) -> None:
+    def __init__(self, layer: Gimp.Layer, defaults: dict[str, Any] | None = None) -> None:
         if defaults is None:
             defaults = {}
         self.name = "gimpfusion"

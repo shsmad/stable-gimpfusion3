@@ -1,3 +1,7 @@
+# IMPORTANT!
+# Strings in this file should NOT be translated
+# They should be kept in English to use in SD API
+
 AUTHOR = "SHSMAD"
 
 MAX_BATCH_SIZE = 20

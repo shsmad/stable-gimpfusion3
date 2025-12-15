@@ -1,11 +1,11 @@
 import logging
 import threading
-import time
 
 import gi
 
 from sg_constants import MAX_BATCH_SIZE, RESIZE_MODES, SAMPLERS
 from sg_gtk_utils import add_textarea_to_container, set_visibility_control_by, set_visibility_of
+from sg_i18n import _
 from sg_plugins import PluginBase
 from sg_proc_arguments import PLUGIN_FIELDS_COMMON, PLUGIN_FIELDS_CONTROLNET_OPTIONS, PLUGIN_FIELDS_RESIZE_MODE
 from sg_structures import ResponseLayers, getActiveLayerAsBase64, getControlNetParams
@@ -18,8 +18,8 @@ from gi.repository import Gimp, GimpUi, GLib, Gtk
 
 class Image2imagePlugin(PluginBase):
     menu_path = "<Image>/GimpFusion"
-    menu_label = "Image to image"
-    description = "Image to image"
+    menu_label = _("Image to image")
+    description = _("Generate image based on other image")
 
     def add_arguments(self, procedure):
         # PLUGIN_FIELDS_IMG2IMG(procedure)
@@ -152,7 +152,7 @@ class Image2imagePlugin(PluginBase):
         success, non_empty, x1, y1, x2, y2 = Gimp.Selection.bounds(image)
         selectionWidth, selectionHeight = x2 - x1, y2 - y1
 
-        Gimp.progress_init("Saving active layer as base64")
+        Gimp.progress_init(_("Saving active layer as base64"))
 
         data = {
             "prompt": f"{prompt} {self.settings.get('prompt')}".strip(),
@@ -172,7 +172,7 @@ class Image2imagePlugin(PluginBase):
             "sampler_index": sampler_index if sampler_index in SAMPLERS else SAMPLERS[0],
         }
 
-        Gimp.progress_set_text("Calling Stable Diffusion /sdapi/v1/img2img")
+        Gimp.progress_set_text(_("Calling Stable Diffusion /sdapi/v1/img2img"))
         try:
             controlnet_units = []
             if cn1_enabled:
@@ -210,7 +210,7 @@ class Image2imagePlugin(PluginBase):
 
             thread.join()
 
-            Gimp.progress_set_text("Inserting layers from response")
+            Gimp.progress_set_text(_("Inserting layers from response"))
 
             if "error" in response:
                 # Gimp.message(f"{response['error']}: {response.get('message')}")

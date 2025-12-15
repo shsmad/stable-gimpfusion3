@@ -3,6 +3,7 @@ import logging
 import gi
 
 from sg_gtk_utils import add_textarea_to_container
+from sg_i18n import _
 from sg_plugins import PluginBase
 from sg_utils import set_logging_dest
 
@@ -16,42 +17,42 @@ from sg_proc_arguments import PLUGIN_FIELDS_CHECKPOINT
 
 class ConfigPlugin(PluginBase):
     menu_path = "<Image>/GimpFusion/Config"
-    menu_label = "Global"
-    description = "This is where you configure params that are shared between all API requests"
+    menu_label = _("Global")
+    description = _("This is where you configure params that are shared between all API requests")
 
     def add_arguments(self, procedure):
         procedure.add_string_argument(
             "prompt",
-            "Prompt Suffix",
-            "Prompt Suffix",
+            _("Prompt Suffix"),
+            _("Prompt Suffix to add to the prompt automatically"),
             "beauty, good skin, sharp skin, ultra detailed skin, high quality, RAW photo, analog film, 35mm photograph, 32K UHD, close-up, ultra realistic, clean",  # noqa: E501
             GObject.ParamFlags.READWRITE,
         )
         procedure.add_string_argument(
             "negative_prompt",
-            "Negative Prompt Suffix",
-            "Negative Prompt Suffix",
+            _("Negative Prompt Suffix"),
+            _("Negative Prompt Suffix to add to the negative prompt automatically"),
             "(deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation",  # noqa: E501
             GObject.ParamFlags.READWRITE,
         )
         procedure.add_string_argument(
             "api_base",
-            "Backend API URL base",
-            "Backend API URL base",
+            _("Backend API URL base"),
+            _("Backend API URL base to use for requests"),
             "http://127.0.0.1:7860/",
             GObject.ParamFlags.READWRITE,
         )
         procedure.add_boolean_argument(
             "debug_logging",
-            "Debug logging",
-            "INFO if not set, DEBUG if set logging level",
+            _("Debug logging"),
+            _("INFO if not set, DEBUG if set logging level"),
             False,
             GObject.ParamFlags.READWRITE,
         )
         procedure.add_boolean_argument(
             "file_logging",
-            "Log to file",
-            "Log to file or console",
+            _("Log to file"),
+            _("Log to file or console"),
             False,
             GObject.ParamFlags.READWRITE,
         )
@@ -61,7 +62,7 @@ class ConfigPlugin(PluginBase):
 
         if run_mode == Gimp.RunMode.INTERACTIVE:
             GimpUi.init(procedure.get_name())
-            dialog = GimpUi.ProcedureDialog.new(procedure, config, title="Global gimpfusion settings")
+            dialog = GimpUi.ProcedureDialog.new(procedure, config, title=_("Global gimpfusion settings"))
 
             vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, homogeneous=False, spacing=10)
             dialog.get_content_area().add(vbox)
@@ -103,8 +104,8 @@ class ConfigPlugin(PluginBase):
 
 class ConfigModelPlugin(PluginBase):
     menu_path = "<Image>/GimpFusion/Config"
-    menu_label = "Change Model"
-    description = "Change the Checkpoint Model"
+    menu_label = _("Change Model")
+    description = _("Change the Checkpoint Model")
 
     def add_arguments(self, procedure):
         PLUGIN_FIELDS_CHECKPOINT(
@@ -146,7 +147,7 @@ class ConfigModelPlugin(PluginBase):
 
         if self.settings.get("model") != model:
             Gimp.progress_init("")
-            Gimp.progress_set_text("Changing model...")
+            Gimp.progress_set_text(_("Changing model..."))
 
             try:
                 # self.api.post("/sdapi/v1/options", {"sd_model_checkpoint": models[model]})

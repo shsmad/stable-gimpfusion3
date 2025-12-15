@@ -5,6 +5,7 @@ import sys
 
 import gi
 
+from sg_i18n import DOMAIN
 from sg_plugins import PluginBase
 from sg_plugins.config import ConfigModelPlugin, ConfigPlugin
 from sg_plugins.config_controlnet import ConfigControlnetLayerPlugin
@@ -30,7 +31,7 @@ settings = MyShelf(STABLE_GIMPFUSION_DEFAULT_SETTINGS)
 api = ApiClient(settings.get("api_base"))
 
 logging.basicConfig(level=logging.DEBUG if settings.get("debug_logging") else logging.INFO)
-set_logging_dest(settings.get("file_logging"))
+set_logging_dest(settings.get("file_logging") or False)
 
 # def PLUGIN_FIELDS_TXT2IMG(procedure):
 #     PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=settings.get("sampler_name"))
@@ -69,7 +70,7 @@ class GimpfusionPlugin(Gimp.PlugIn):
             settings.save({"is_server_running": False})
 
     def do_set_i18n(self, name):
-        return False
+        return DOMAIN
 
     def do_query_procedures(self):
         return list(MODULES.keys())

@@ -6,6 +6,7 @@ import gi
 from sg_constants import INSERT_MODES, MAX_BATCH_SIZE, SAMPLERS
 from sg_gtk_utils import add_textarea_to_container, set_visibility_control_by, set_visibility_of
 from sg_plugins import PluginBase
+from sg_i18n import _
 from sg_proc_arguments import PLUGIN_FIELDS_COMMON, PLUGIN_FIELDS_CONTROLNET_OPTIONS
 from sg_structures import ResponseLayers, getControlNetParams
 from sg_utils import get_progress_at_background, roundToMultiple
@@ -17,8 +18,8 @@ from gi.repository import Gimp, GimpUi, GLib, Gtk
 
 class Txt2imagePlugin(PluginBase):
     menu_path = "<Image>/GimpFusion"
-    menu_label = "Text to image"
-    description = "Text to image"
+    menu_label = _("Text to image")
+    description = _("Generate image from text")
 
     def add_arguments(self, procedure):
         # PLUGIN_FIELDS_TXT2IMG =
@@ -88,20 +89,22 @@ class Txt2imagePlugin(PluginBase):
             grid.attach(cn1_layer_box, 0, 6, 1, 1)
             grid.attach(cn2_layer_box, 1, 6, 1, 1)
 
-            set_visibility_of([
-                width_box,
-                height_box,
-                steps_box,
-                cfg_scale_box,
-                restore_faces_box,
-                tiling_box,
-                cn1_enabled_box,
-                cn2_enabled_box,
-                seed_box,
-                batch_size_box,
-                sampler_index_box,
-                denoising_strength_box,
-            ])
+            set_visibility_of(
+                [
+                    width_box,
+                    height_box,
+                    steps_box,
+                    cfg_scale_box,
+                    restore_faces_box,
+                    tiling_box,
+                    cn1_enabled_box,
+                    cn2_enabled_box,
+                    seed_box,
+                    batch_size_box,
+                    sampler_index_box,
+                    denoising_strength_box,
+                ]
+            )
 
             set_visibility_control_by(cn1_enabled_box, [cn1_layer_box])
             set_visibility_control_by(cn2_enabled_box, [cn2_layer_box])
@@ -160,7 +163,7 @@ class Txt2imagePlugin(PluginBase):
             "sampler_index": sampler_index if sampler_index in SAMPLERS else SAMPLERS[0],
         }
 
-        Gimp.progress_init("Calling Stable Diffusion /sdapi/v1/txt2img")
+        Gimp.progress_init(_("Calling Stable Diffusion /sdapi/v1/txt2img"))
 
         try:
             controlnet_units = []
@@ -186,7 +189,7 @@ class Txt2imagePlugin(PluginBase):
 
             thread.join()
 
-            Gimp.progress_set_text("Inserting layers from response")
+            Gimp.progress_set_text(_("Inserting layers from response"))
 
             if "error" in response:
                 Gimp.message(f"{response['error']}: {response.get('message')}")
@@ -217,13 +220,11 @@ class Txt2imagePlugin(PluginBase):
             # self.checkUpdate()
 
 
-
-
 # class Txt2imageContextPlugin(PluginBase):
 #     menu_path = "<Layers>/GimpFusion"
 #     menu_label = "Text to image"
 #     description = "Text to image"
-# 
+#
 #     def add_arguments(self, procedure):
 #         # PLUGIN_FIELDS_LAYERS + PLUGIN_FIELDS_TXT2IMG
 #         # PLUGIN_FIELDS_TXT2IMG(procedure)
