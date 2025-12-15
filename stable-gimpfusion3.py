@@ -66,7 +66,7 @@ class GimpfusionPlugin(Gimp.PlugIn):
             settings.save(options)
         except Exception:
             logging.exception("ERROR: DynamicDropdownData.fetch")
-            settings.save({"is_server_running", False})
+            settings.save({"is_server_running": False})
 
     def do_set_i18n(self, name):
         return False

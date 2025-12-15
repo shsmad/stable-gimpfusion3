@@ -127,14 +127,14 @@ class ConfigModelPlugin(PluginBase):
             dialog.get_content_area().add(vbox)
             vbox.show()
 
-            add_textarea_to_container(procedure, config, "flux-encoders", vbox)
+            add_textarea_to_container(procedure, config, "flux_encoders", vbox)
 
             if not dialog.run():
                 return procedure.new_return_values(Gimp.PDBStatusType.CANCEL, GLib.Error())
 
         model = config.get_property("model")
         flux_encoders_mode = config.get_property("flux_encoders_mode")
-        flux_encoders = config.get_property("flux-encoders")
+        flux_encoders = config.get_property("flux_encoders")
 
         data = {"sd_model_checkpoint": model}
         if flux_encoders_mode == "Always add" or (

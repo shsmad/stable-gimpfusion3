@@ -188,7 +188,8 @@ class Image2imagePlugin(PluginBase):
                 data["alwayson_scripts"] = alwayson_scripts
 
 
-            data["alwayson_scripts"] = {
+            # Merge with existing alwayson_scripts if any
+            base_scripts = {
                 "never oom integrated": {
                     "args": [True, True],
                 },
@@ -196,6 +197,9 @@ class Image2imagePlugin(PluginBase):
                 #     "args": [True, "MultiDiffusion", 768, 768, 64, 64],
                 # },
             }
+            if "alwayson_scripts" in data:
+                base_scripts.update(data["alwayson_scripts"])
+            data["alwayson_scripts"] = base_scripts
 
             logging.debug("starting thread")
             thread = threading.Thread(target=get_progress_at_background, args=(self.api,), daemon=True)

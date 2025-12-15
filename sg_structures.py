@@ -1,9 +1,11 @@
 import base64
+import contextlib
 import json
 import logging
 import os
 import tempfile
 import time
+from typing import Any, Optional
 
 import gi
 import requests
@@ -17,30 +19,43 @@ from sg_utils import aspect_resize, roundToMultiple
 
 
 class TempFiles:
+    """Context manager for temporary files with automatic cleanup"""
     def __new__(cls):
         if not hasattr(cls, "instance"):
             cls.instance = super().__new__(cls)
         return cls.instance
 
-    def __init__(self):
-        self.files = []
+    def __init__(self) -> None:
+        self.files: list[str] = []
 
-    def get(self, filename):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.removeAll()
+        return False
+
+    def __del__(self):
+        """Cleanup on deletion"""
+        with contextlib.suppress(Exception):
+            self.removeAll()
+
+    def get(self, filename: str) -> str:
         self.files.append(filename)
         return os.path.join(tempfile.gettempdir(), filename)
 
-    def removeAll(self):
+    def removeAll(self) -> None:
         try:
             unique_list = list(set(self.files))
             for tmpfile in unique_list:
                 if os.path.exists(tmpfile):
                     os.remove(tmpfile)
         except Exception as ex:
-            ex = ex
+            logging.exception(f"Error removing temporary file: {ex}")
 
 
 class LayerData:
-    def __init__(self, layer, defaults=None):
+    def __init__(self, layer: Gimp.Layer, defaults: Optional[dict[str, Any]] = None) -> None:
         if defaults is None:
             defaults = {}
         self.name = "gimpfusion"
@@ -50,7 +65,7 @@ class LayerData:
         self.had_parasite = False
         self.load()
 
-    def load(self):
+    def load(self) -> dict[str, Any]:
         # Gimp Item get_parasite
         parasite = self.layer.get_parasite(self.name)
         if not parasite:
@@ -61,7 +76,7 @@ class LayerData:
             self.data = json.loads("".join(chr(x) for x in parasite.get_data()))
         return self.data
 
-    def save(self, data):
+    def save(self, data: dict[str, Any]) -> None:
         data_as_str = json.dumps(data)
         parasite = Gimp.Parasite.new(self.name, Gimp.PARASITE_PERSISTENT, data_as_str.encode())
         self.layer.attach_parasite(parasite)
@@ -329,8 +344,9 @@ class MyShelf:
 class ApiClient:
     """Simple API client used to interface with StableDiffusion JSON endpoints"""
 
-    def __init__(self, base_url):
+    def __init__(self, base_url, timeout=None):
         self.setBaseUrl(base_url)
+        self.timeout = timeout
 
     def setBaseUrl(self, base_url):
         self.base_url = base_url.strip("/")
@@ -340,16 +356,23 @@ class ApiClient:
             url = self.base_url + endpoint
             headers = headers or {"Content-Type": "application/json", "Accept": "application/json"}
 
-            # logging.debug(f"POST {url}, data {data}")
+            logging.debug(f"POST {url}, data {data}")
 
-            response = requests.post(url=url, params=params, headers=headers, json=data)
+            response = requests.post(url=url, params=params, headers=headers, json=data, timeout=self.timeout)
 
+            response.raise_for_status()
             data = response.json()
 
-            # logging.debug(f"response: {data}")
             return data
+        except requests.exceptions.Timeout:
+            logging.error(f"Timeout while POSTing to {endpoint}")
+            raise
+        except requests.exceptions.RequestException as ex:
+            logging.exception(f"ERROR: ApiClient.post to {endpoint}: {ex}")
+            raise
         except Exception as ex:
-            logging.exception(f"ERROR: ApiClient.post: {ex}")
+            logging.exception(f"ERROR: ApiClient.post unexpected error: {ex}")
+            raise
 
     def get(self, endpoint, params=None, headers=None):
         try:
@@ -357,10 +380,18 @@ class ApiClient:
             logging.debug(f"GET {url}")
             headers = headers or {"Content-Type": "application/json", "Accept": "application/json"}
 
-            response = requests.get(url=url, params=params, headers=headers)
+            response = requests.get(url=url, params=params, headers=headers, timeout=self.timeout)
+            response.raise_for_status()
             return response.json()
+        except requests.exceptions.Timeout:
+            logging.error(f"Timeout while GETting {endpoint}")
+            raise
+        except requests.exceptions.RequestException as ex:
+            logging.exception(f"ERROR: ApiClient.get from {endpoint}: {ex}")
+            raise
         except Exception as ex:
-            logging.exception(f"ERROR: ApiClient.get: {ex}")
+            logging.exception(f"ERROR: ApiClient.get unexpected error: {ex}")
+            raise
 
 
 def getLayerAsBase64(layer):
@@ -429,7 +460,8 @@ def getControlNetParams(cn_layer):
     # ControlNet image size need to be in multiples of 64
     layer64 = layer.copy().insert().resizeToMultipleOf(64)
     data.update({"input_image": layer64.toBase64()})
-    if cn_layer.mask:
+    # if cn_layer.mask:
+    if cn_layer.get_mask():
         data.update({"mask": layer64.maskToBase64()})
     layer64.remove()
     return data

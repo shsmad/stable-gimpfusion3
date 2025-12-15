@@ -67,7 +67,7 @@ class ConfigControlnetLayerPlugin(PluginBase):
         guidance = config.get_property("guidance")
         processor_res = config.get_property("processor_res")
         threshold_a = config.get_property("threshold_a")
-        threshold_b = config.get_property("module")
+        threshold_b = config.get_property("threshold_b")
 
         cn_models = self.settings.get("cn_models", [])
         cn_settings = {
