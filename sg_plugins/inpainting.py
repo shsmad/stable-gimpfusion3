@@ -166,18 +166,18 @@ class InpaintingPlugin(PluginBase):
             Gimp.progress_end()
             # self.cleanup()
 
-class InpaintingContextPlugin(PluginBase):
-    menu_path = "<Layers>/GimpFusion"
-    menu_label = "Inpainting"
-    description = "Inpainting"
+# class InpaintingContextPlugin(PluginBase):
+#     menu_path = "<Layers>/GimpFusion"
+#     menu_label = "Inpainting"
+#     description = "Inpainting"
 
-    def add_arguments(self, procedure):
-        # PLUGIN_FIELDS_LAYERS + PLUGIN_FIELDS_IMG2IMG
-        # PLUGIN_FIELDS_IMG2IMG
-        PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes=RESIZE_MODES)
-        # PLUGIN_FIELDS_TXT2IMG(procedure)
-        PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
-        PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
-        PLUGIN_FIELDS_INPAINTING(procedure, inpaint_fill_modes=INPAINT_FILL_MODES)
+#     def add_arguments(self, procedure):
+#         # PLUGIN_FIELDS_LAYERS + PLUGIN_FIELDS_IMG2IMG
+#         # PLUGIN_FIELDS_IMG2IMG
+#         PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes=RESIZE_MODES)
+#         # PLUGIN_FIELDS_TXT2IMG(procedure)
+#         PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
+#         PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
+#         PLUGIN_FIELDS_INPAINTING(procedure, inpaint_fill_modes=INPAINT_FILL_MODES)
 
-    # handleInpaintingFromLayersContext
+#     # handleInpaintingFromLayersContext

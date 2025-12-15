@@ -219,13 +219,13 @@ class Txt2imagePlugin(PluginBase):
 
 
 
-class Txt2imageContextPlugin(PluginBase):
-    menu_path = "<Layers>/GimpFusion"
-    menu_label = "Text to image"
-    description = "Text to image"
-
-    def add_arguments(self, procedure):
-        # PLUGIN_FIELDS_LAYERS + PLUGIN_FIELDS_TXT2IMG
-        # PLUGIN_FIELDS_TXT2IMG(procedure)
-        PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
-        PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
+# class Txt2imageContextPlugin(PluginBase):
+#     menu_path = "<Layers>/GimpFusion"
+#     menu_label = "Text to image"
+#     description = "Text to image"
+# 
+#     def add_arguments(self, procedure):
+#         # PLUGIN_FIELDS_LAYERS + PLUGIN_FIELDS_TXT2IMG
+#         # PLUGIN_FIELDS_TXT2IMG(procedure)
+#         PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
+#         PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)

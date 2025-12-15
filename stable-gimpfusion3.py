@@ -7,11 +7,11 @@ import gi
 
 from sg_plugins import PluginBase
 from sg_plugins.config import ConfigModelPlugin, ConfigPlugin
-from sg_plugins.config_controlnet import ConfigControlnetLayerContextPlugin, ConfigControlnetLayerPlugin
-from sg_plugins.img2img import Image2imageContextPlugin, Image2imagePlugin
-from sg_plugins.inpainting import InpaintingContextPlugin, InpaintingPlugin
-from sg_plugins.layerinfo import LayerInfoContextPlugin, LayerInfoPlugin
-from sg_plugins.txt2img import Txt2imageContextPlugin, Txt2imagePlugin
+from sg_plugins.config_controlnet import ConfigControlnetLayerPlugin
+from sg_plugins.img2img import Image2imagePlugin
+from sg_plugins.inpainting import InpaintingPlugin
+from sg_plugins.layerinfo import LayerInfoPlugin
+from sg_plugins.txt2img import Txt2imagePlugin
 
 gi.require_version("Gimp", "3.0")
 gi.require_version("GimpUi", "3.0")
@@ -45,15 +45,15 @@ MODULES: dict[str, PluginBase] = {
     "stable-gimpfusion-config": ConfigPlugin(api=api, settings=settings),
     "stable-gimpfusion-config-model": ConfigModelPlugin(api=api, settings=settings),
     "stable-gimpfusion-txt2img": Txt2imagePlugin(api=api, settings=settings),
-    "stable-gimpfusion-txt2img-context": Txt2imageContextPlugin(api=api, settings=settings),
+    # "stable-gimpfusion-txt2img-context": Txt2imageContextPlugin(api=api, settings=settings),
     "stable-gimpfusion-img2img": Image2imagePlugin(api=api, settings=settings),
-    "stable-gimpfusion-img2img-context": Image2imageContextPlugin(api=api, settings=settings),
+    # "stable-gimpfusion-img2img-context": Image2imageContextPlugin(api=api, settings=settings),
     "stable-gimpfusion-inpainting": InpaintingPlugin(api=api, settings=settings),
-    "stable-gimpfusion-inpainting-context": InpaintingContextPlugin(api=api, settings=settings),
+    # "stable-gimpfusion-inpainting-context": InpaintingContextPlugin(api=api, settings=settings),
     "stable-gimpfusion-config-controlnet-layer": ConfigControlnetLayerPlugin(api=api, settings=settings),
-    "stable-gimpfusion-config-controlnet-layer-context": ConfigControlnetLayerContextPlugin(api=api, settings=settings),
+    # "stable-gimpfusion-config-controlnet-layer-context": ConfigControlnetLayerContextPlugin(api=api, settings=settings),
     "stable-gimpfusion-layer-info": LayerInfoPlugin(api=api, settings=settings),
-    "stable-gimpfusion-layer-info-context": LayerInfoContextPlugin(api=api, settings=settings),
+    # "stable-gimpfusion-layer-info-context": LayerInfoContextPlugin(api=api, settings=settings),
 }
 
 
