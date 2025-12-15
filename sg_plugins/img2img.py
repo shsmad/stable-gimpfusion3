@@ -1,14 +1,15 @@
 import logging
-import random
+import threading
+import time
 
 import gi
 
-from sg_constants import GENERATION_MESSAGES, MAX_BATCH_SIZE, RESIZE_MODES, SAMPLERS
+from sg_constants import MAX_BATCH_SIZE, RESIZE_MODES, SAMPLERS
 from sg_gtk_utils import add_textarea_to_container, set_visibility_control_by, set_visibility_of
 from sg_plugins import PluginBase
 from sg_proc_arguments import PLUGIN_FIELDS_COMMON, PLUGIN_FIELDS_CONTROLNET_OPTIONS, PLUGIN_FIELDS_RESIZE_MODE
 from sg_structures import ResponseLayers, getActiveLayerAsBase64, getControlNetParams
-from sg_utils import roundToMultiple
+from sg_utils import get_progress_at_background, roundToMultiple
 
 gi.require_version("Gimp", "3.0")
 gi.require_version("GimpUi", "3.0")
@@ -27,6 +28,8 @@ class Image2imagePlugin(PluginBase):
         PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
 
     def main(self, procedure, run_mode, image, drawables, config, data):
+        logging.getLogger().setLevel(level=logging.DEBUG if self.settings.get("debug_logging") else logging.INFO)
+
         if run_mode == Gimp.RunMode.INTERACTIVE:
             GimpUi.init(procedure.get_name())
             dialog = GimpUi.ProcedureDialog.new(procedure, config)
@@ -147,7 +150,9 @@ class Image2imagePlugin(PluginBase):
         cn_skip_annotator_layers = config.get_property("cn_skip_annotator_layers")
 
         success, non_empty, x1, y1, x2, y2 = Gimp.Selection.bounds(image)
-        origWidth, origHeight = x2 - x1, y2 - y1
+        selectionWidth, selectionHeight = x2 - x1, y2 - y1
+
+        Gimp.progress_init("Saving active layer as base64")
 
         data = {
             "prompt": f"{prompt} {self.settings.get('prompt')}".strip(),
@@ -156,8 +161,8 @@ class Image2imagePlugin(PluginBase):
             "batch_size": min(MAX_BATCH_SIZE, max(1, batch_size)),
             "steps": int(steps),
             "cfg_scale": float(cfg_scale),
-            "width": roundToMultiple(width, 8),
-            "height": roundToMultiple(height, 8),
+            "width": roundToMultiple(selectionWidth, 8),
+            "height": roundToMultiple(selectionHeight, 8),
             "restore_faces": restore_faces,
             "tiling": tiling,
             "denoising_strength": float(denoising_strength),
@@ -167,10 +172,8 @@ class Image2imagePlugin(PluginBase):
             "sampler_index": sampler_index if sampler_index in SAMPLERS else SAMPLERS[0],
         }
 
+        Gimp.progress_set_text("Calling Stable Diffusion /sdapi/v1/img2img")
         try:
-            Gimp.progress_init("")
-            Gimp.progress_set_text(random.choice(GENERATION_MESSAGES))  # noqa: S311
-
             controlnet_units = []
             if cn1_enabled:
                 controlnet_units.append(getControlNetParams(cn1_layer))
@@ -184,12 +187,36 @@ class Image2imagePlugin(PluginBase):
                 }
                 data["alwayson_scripts"] = alwayson_scripts
 
+
+            data["alwayson_scripts"] = {
+                "never oom integrated": {
+                    "args": [True, True],
+                },
+                # "multidiffusion integrated": {
+                #     "args": [True, "MultiDiffusion", 768, 768, 64, 64],
+                # },
+            }
+
+            logging.debug("starting thread")
+            thread = threading.Thread(target=get_progress_at_background, args=(self.api,), daemon=True)
+            thread.start()
+
+            logging.debug("requesting")
             response = self.api.post("/sdapi/v1/img2img", data)
 
-            ResponseLayers(image, response, {"skip_annotator_layers": cn_skip_annotator_layers}).resize(
-                origWidth,
-                origHeight,
-            )
+            thread.join()
+
+            Gimp.progress_set_text("Inserting layers from response")
+
+            if "error" in response:
+                # Gimp.message(f"{response['error']}: {response.get('message')}")
+                return procedure.new_return_values(
+                    Gimp.PDBStatusType.CALLING_ERROR,
+                    GLib.Error(message=f"{response['error']}: {response.get('message')}"),
+                )
+
+            ResponseLayers(image, response, {"skip_annotator_layers": cn_skip_annotator_layers})
+            #.resize(selectionWidth, selectionHeight).translate((x1, y1)).addSelectionAsMask()
 
             return procedure.new_return_values(Gimp.PDBStatusType.SUCCESS, GLib.Error())
 
@@ -205,16 +232,16 @@ class Image2imagePlugin(PluginBase):
             # self.cleanup()
 
 
-class Image2imageContextPlugin(PluginBase):
-    menu_path = "<Layers>/GimpFusion"
-    menu_label = "Image to image"
-    description = "Image to image"
-
-    def add_arguments(self, procedure):
-        # PLUGIN_FIELDS_LAYERS + PLUGIN_FIELDS_IMG2IMG
-        # PLUGIN_FIELDS_IMG2IMG(procedure)
-        PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes=RESIZE_MODES)
-        PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
-        PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
-
-    # handleImageToImageFromLayersContext
+# class Image2imageContextPlugin(PluginBase):
+#     menu_path = "<Layers>/GimpFusion"
+#     menu_label = "Image to image"
+#     description = "Image to image"
+#
+#     def add_arguments(self, procedure):
+#         # PLUGIN_FIELDS_LAYERS + PLUGIN_FIELDS_IMG2IMG
+#         # PLUGIN_FIELDS_IMG2IMG(procedure)
+#         PLUGIN_FIELDS_RESIZE_MODE(procedure, resize_modes=RESIZE_MODES)
+#         PLUGIN_FIELDS_COMMON(procedure, samplers=SAMPLERS, selected_sampler=self.settings.get("sampler_name"))
+#         PLUGIN_FIELDS_CONTROLNET_OPTIONS(procedure)
+#
+#     # handleImageToImageFromLayersContext
