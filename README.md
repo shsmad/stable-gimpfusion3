@@ -6,8 +6,10 @@ This is a plugin for using GIMP 3 with Stable Diffusion.
 
 Rewriten version runs on python3 for GIMP 3. Some refactoring and UI/UX optimisation was made.
 
-Tested on Ubuntu 24.04 with PPA GIMP (no sandboxed environments like AppImage, snap of flatpak) and
-[Stable Diffusion Forge](https://github.com/lllyasviel/stable-diffusion-webui-forge).
+Tested on Ubuntu 24.04 with PPA GIMP 3.0.6 (no sandboxed environments like AppImage, snap of flatpak) with API:
+
+- [Stable Diffusion WebUI Forge](https://github.com/lllyasviel/stable-diffusion-webui-forge)
+- [Stable Diffusion WebUI Forge - Classic](https://github.com/Haoming02/sd-webui-forge-classic)
 
 ## Installation
 
@@ -34,6 +36,7 @@ cd path/to/project/stable-gimpfusion3/
 mkdir -p locale/{YOUR_LANG}/LC_MESSAGES
 msginit -l ru -i locale/stable-gimpfusion3.pot -o locale/{YOUR_LANG}/LC_MESSAGES/stable-gimpfusion3.po
 ```
+
 Edit `locale/{YOUR_LANG}/LC_MESSAGES/stable-gimpfusion3.po`, add translations.
 
 To update from new pot-file:

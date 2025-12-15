@@ -23,6 +23,7 @@ class ConfigPlugin(PluginBase):
     menu_path = "<Image>/GimpFusion/Config"
     menu_label = _("Global")
     description = _("This is where you configure params that are shared between all API requests")
+    sensitivity_mask = Gimp.ProcedureSensitivityMask.ALWAYS
 
     def add_arguments(self, procedure: Gimp.Procedure) -> None:
         procedure.add_string_argument(
@@ -118,13 +119,14 @@ class ConfigModelPlugin(PluginBase):
     menu_path = "<Image>/GimpFusion/Config"
     menu_label = _("Change Model")
     description = _("Change the Checkpoint Model")
+    sensitivity_mask = Gimp.ProcedureSensitivityMask.ALWAYS
 
     def add_arguments(self, procedure: Gimp.Procedure) -> None:
         PLUGIN_FIELDS_CHECKPOINT(
             procedure,
-            models=self.settings.get("models"),
+            models=self.settings.get("models") or [],
             selected_model=self.settings.get("sd_model_checkpoint"),
-            sd_modules=self.settings.get("sd_modules"),
+            sd_modules=self.settings.get("sd_modules") or [],
         )
 
     def main(
@@ -148,22 +150,24 @@ class ConfigModelPlugin(PluginBase):
             dialog.get_content_area().add(vbox)
             vbox.show()
 
-            add_textarea_to_container(procedure, config, "flux_encoders", vbox)
+            add_textarea_to_container(procedure, config, "flux-encoders", vbox)
 
             if not dialog.run():
                 return procedure.new_return_values(Gimp.PDBStatusType.CANCEL, GLib.Error())
 
         model = config.get_property("model")
         flux_encoders_mode = config.get_property("flux_encoders_mode")
-        flux_encoders = config.get_property("flux_encoders")
+        flux_encoders = config.get_property("flux-encoders")
 
         data = {"sd_model_checkpoint": model}
-        if flux_encoders_mode == "Always add" or (
-            flux_encoders_mode == "Autoguess" and ("flux" in model.lower() or model.lower().endswith(".gguf"))
-        ):
-            data["forge_additional_modules"] = flux_encoders.splitlines()
-        elif flux_encoders_mode == "Never add":
-            data["forge_additional_modules"] = []
+
+        if self.settings.get("has_sd_modules_support"):
+            if flux_encoders_mode == "Always add" or (
+                flux_encoders_mode == "Autoguess" and ("flux" in model.lower() or model.lower().endswith(".gguf"))
+            ):
+                data["forge_additional_modules"] = flux_encoders.splitlines()
+            elif flux_encoders_mode == "Never add":
+                data["forge_additional_modules"] = []
 
         if self.settings.get("model") != model:
             Gimp.progress_init("")

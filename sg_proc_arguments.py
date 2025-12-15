@@ -15,7 +15,7 @@ def PLUGIN_FIELDS_CHECKPOINT(
         _("Model"),
         _("Model to use for inference"),
         make_choice_from_list(models),
-        selected_model,
+        selected_model if selected_model in models else models[0],
         GObject.ParamFlags.READWRITE,
     )
 

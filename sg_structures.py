@@ -383,9 +383,8 @@ class ApiClient:
 
             response = requests.post(url=url, params=params, headers=headers, json=data, timeout=self.timeout)
 
-            response.raise_for_status()
             data = response.json()
-
+            # response.raise_for_status()
             return data
         except requests.exceptions.Timeout:
             logging.error(f"Timeout while POSTing to {endpoint}")
@@ -404,7 +403,7 @@ class ApiClient:
             headers = headers or {"Content-Type": "application/json", "Accept": "application/json"}
 
             response = requests.get(url=url, params=params, headers=headers, timeout=self.timeout)
-            response.raise_for_status()
+            # response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout:
             logging.error(f"Timeout while GETting {endpoint}")

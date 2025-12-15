@@ -7,24 +7,23 @@ from typing import Any
 
 import gi
 
-from sg_constants import GENERATION_MESSAGES, INPAINT_FILL_MODES, MAX_BATCH_SIZE, RESIZE_MODES, SAMPLERS
+from sg_constants import GENERATION_MESSAGES, INPAINT_FILL_MODES, RESIZE_MODES, SAMPLERS
 from sg_i18n import _
-from sg_plugins import PluginBase
+from sg_plugins.generation_base import GenerationPluginBase
 from sg_proc_arguments import (
     PLUGIN_FIELDS_COMMON,
     PLUGIN_FIELDS_CONTROLNET_OPTIONS,
     PLUGIN_FIELDS_INPAINTING,
     PLUGIN_FIELDS_RESIZE_MODE,
 )
-from sg_structures import ResponseLayers, getActiveLayerAsBase64, getActiveMaskAsBase64, getControlNetParams
-from sg_utils import roundToMultiple
+from sg_structures import ResponseLayers, getActiveLayerAsBase64, getActiveMaskAsBase64
 
 gi.require_version("Gimp", "3.0")
 gi.require_version("GimpUi", "3.0")
 from gi.repository import Gimp, GimpUi, GLib
 
 
-class InpaintingPlugin(PluginBase):
+class InpaintingPlugin(GenerationPluginBase):
     menu_path = "<Image>/GimpFusion"
     menu_label = _("Inpainting")
     description = _("Inpainting in existing image")
@@ -81,27 +80,9 @@ class InpaintingPlugin(PluginBase):
             if not dialog.run():
                 return procedure.new_return_values(Gimp.PDBStatusType.CANCEL, GLib.Error())
 
+        config_values = self.get_common_config_values(config)
         resize_mode = config.get_property("resize_mode")
-
-        prompt = config.get_property("prompt")
-        negative_prompt = config.get_property("negative_prompt")
-        seed = config.get_property("seed")
-        batch_size = config.get_property("batch_size")
-        steps = config.get_property("steps")
         mask_blur = config.get_property("mask_blur")
-        width = config.get_property("width")
-        height = config.get_property("height")
-        cfg_scale = config.get_property("cfg_scale")
-        denoising_strength = config.get_property("denoising_strength")
-        sampler_index = config.get_property("sampler_index")
-        restore_faces = config.get_property("restore_faces")
-        tiling = config.get_property("tiling")
-
-        cn1_enabled = config.get_property("cn1_enabled")
-        cn1_layer = config.get_property("cn1_layer")
-        cn2_enabled = config.get_property("cn2_enabled")
-        cn2_layer = config.get_property("cn2_layer")
-        cn_skip_annotator_layers = config.get_property("cn_skip_annotator_layers")
 
         invert_mask = config.get_property("invert_mask")
         inpaint_full_res = config.get_property("inpaint_full_res")
@@ -118,52 +99,53 @@ class InpaintingPlugin(PluginBase):
                 GLib.Error(message=_("Inpainting must use either a selection or layer mask")),
             )
 
-        data = {
-            "prompt": f"{prompt} {self.settings.get('prompt')}".strip(),
-            "negative_prompt": f"{negative_prompt} {self.settings.get('negative_prompt')}".strip(),
-            "seed": seed or -1,
-            "batch_size": min(MAX_BATCH_SIZE, max(1, batch_size)),
-            "steps": int(steps),
-            "cfg_scale": float(cfg_scale),
-            "width": roundToMultiple(width, 8),
-            "height": roundToMultiple(height, 8),
-            "restore_faces": restore_faces,
-            "tiling": tiling,
-            "denoising_strength": float(denoising_strength),
-            "init_images": init_images,
-            "resize_mode": RESIZE_MODES.index(resize_mode) if resize_mode in RESIZE_MODES else 0,
-            "mask": mask,
-            "mask_blur": mask_blur,
-            "inpainting_fill": INPAINT_FILL_MODES.index(inpainting_fill)
-            if inpainting_fill in INPAINT_FILL_MODES
-            else 0,
-            "inpaint_full_res": inpaint_full_res,
-            "inpaint_full_res_padding": 10,
-            "inpainting_mask_invert": 1 if invert_mask else 0,
-            "sampler_index": sampler_index if sampler_index in SAMPLERS else SAMPLERS[0],
-        }
+        data = self.build_base_data_dict(
+            prompt=config_values["prompt"],
+            negative_prompt=config_values["negative_prompt"],
+            seed=config_values["seed"],
+            batch_size=config_values["batch_size"],
+            steps=config_values["steps"],
+            cfg_scale=config_values["cfg_scale"],
+            width=config_values["width"],
+            height=config_values["height"],
+            restore_faces=config_values["restore_faces"],
+            tiling=config_values["tiling"],
+            denoising_strength=config_values["denoising_strength"],
+            sampler_index=config_values["sampler_index"],
+        )
+        data.update(
+            {
+                "init_images": init_images,
+                "resize_mode": RESIZE_MODES.index(resize_mode) if resize_mode in RESIZE_MODES else 0,
+                "mask": mask,
+                "mask_blur": mask_blur,
+                "inpainting_fill": INPAINT_FILL_MODES.index(inpainting_fill)
+                if inpainting_fill in INPAINT_FILL_MODES
+                else 0,
+                "inpaint_full_res": inpaint_full_res,
+                "inpaint_full_res_padding": 10,
+                "inpainting_mask_invert": 1 if invert_mask else 0,
+            }
+        )
 
         try:
-            Gimp.progress_init("")
-            Gimp.progress_set_text(random.choice(GENERATION_MESSAGES))
+            controlnet_units = self.build_controlnet_units(
+                config_values["cn1_enabled"],
+                config_values["cn1_layer"],
+                config_values["cn2_enabled"],
+                config_values["cn2_layer"],
+            )
+            self.add_controlnet_to_data(data, controlnet_units)
 
-            controlnet_units = []
-            if cn1_enabled:
-                controlnet_units.append(getControlNetParams(cn1_layer))
-            if cn2_enabled:
-                controlnet_units.append(getControlNetParams(cn2_layer))
+            response = self.call_api_with_progress(
+                "/sdapi/v1/img2img",
+                data,
+                progress_text=random.choice(GENERATION_MESSAGES),
+            )
 
-            if controlnet_units:
-                alwayson_scripts = {
-                    "controlnet": {
-                        "args": controlnet_units,
-                    },
-                }
-                data["alwayson_scripts"] = alwayson_scripts
-
-            response = self.api.post("/sdapi/v1/img2img", data)
-
-            ResponseLayers(image, response, {"skip_annotator_layers": cn_skip_annotator_layers}).resize(
+            ResponseLayers(
+                image, response, {"skip_annotator_layers": config_values["cn_skip_annotator_layers"]}
+            ).resize(
                 image.get_width() if inpaint_full_res else origWidth,
                 image.get_height() if inpaint_full_res else origHeight,
             )
@@ -172,7 +154,7 @@ class InpaintingPlugin(PluginBase):
 
         except Exception as ex:
             logging.exception("ERROR: StableGimpfusionPlugin.inpainting")
-            Gimp.message(repr(ex))
+            Gimp.message(_("Error occurred: {error}").format(error=str(ex)))
             return procedure.new_return_values(
                 Gimp.PDBStatusType.CALLING_ERROR,
                 GLib.Error(message=repr(ex)),
