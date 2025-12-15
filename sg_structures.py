@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import tempfile
+import time
 
 import gi
 import requests
@@ -166,8 +167,11 @@ class Layer:
             return base64.b64encode(file.read()).decode()
 
     def toBase64(self):
+        start = time.perf_counter()
         filepath = TempFiles().get(f"layer{self.id}.png")
         self.saveAs(filepath)
+        end_time = time.perf_counter()
+        logging.debug(f"toBase64 time for {filepath}: {end_time - start}")
         with open(filepath, "rb") as file:
             return base64.b64encode(file.read()).decode()
 
@@ -186,6 +190,11 @@ class ResponseLayers:
 
         layers = []
         try:
+            """
+            response["parameters"]
+            {
+            'prompt': 'beauty, good skin, sharp skin, ultra detailed skin, high quality, RAW photo, analog film, 35mm photograph, 32K UHD, close-up, ultra realistic, clean', 'negative_prompt': '(deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation', 'styles': None, 'seed': 1, 'subseed': -1, 'subseed_strength': 0, 'seed_resize_from_h': -1, 'seed_resize_from_w': -1, 'sampler_name': None, 'scheduler': None, 'batch_size': 1, 'n_iter': 1, 'steps': 20, 'cfg_scale': 7.0, 'distilled_cfg_scale': 3.5, 'width': 2000, 'height': 3000, 'restore_faces': False, 'tiling': False, 'do_not_save_samples': False, 'do_not_save_grid': False, 'eta': None, 'denoising_strength': 0.75, 's_min_uncond': None, 's_churn': None, 's_tmax': None, 's_tmin': None, 's_noise': None, 'override_settings': None, 'override_settings_restore_afterwards': True, 'refiner_checkpoint': None, 'refiner_switch_at': None, 'disable_extra_networks': False, 'firstpass_image': None, 'comments': None, 'init_images': None, 'resize_mode': 0, 'image_cfg_scale': None, 'mask': None, 'mask_blur_x': 4, 'mask_blur_y': 4, 'mask_blur': 4, 'mask_round': True, 'inpainting_fill': 0, 'inpaint_full_res': True, 'inpaint_full_res_padding': 0, 'inpainting_mask_invert': 0, 'initial_noise_multiplier': None, 'latent_mask': None, 'force_task_id': None, 'hr_distilled_cfg': 3.5, 'sampler_index': 'Euler', 'include_init_images': False, 'script_name': None, 'script_args': [], 'send_images': True, 'save_images': False, 'alwayson_scripts': {'never oom integrated': {'args': [True, True]}, 'multidiffusion integrated': {'args': [True, 'MultiDiffusion', 768, 768, 64, 64]}}, 'infotext': None}
+            """
             info = json.loads(response["info"])
             infotexts = info["infotexts"]
             seeds = info["all_seeds"]
