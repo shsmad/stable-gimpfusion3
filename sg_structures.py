@@ -344,7 +344,7 @@ class MyShelf:
 class ApiClient:
     """Simple API client used to interface with StableDiffusion JSON endpoints"""
 
-    def __init__(self, base_url, timeout=None):
+    def __init__(self, base_url, timeout=300):
         self.setBaseUrl(base_url)
         self.timeout = timeout
 
@@ -371,7 +371,7 @@ class ApiClient:
             logging.exception(f"ERROR: ApiClient.post to {endpoint}: {ex}")
             raise
         except Exception as ex:
-            logging.exception(f"ERROR: ApiClient.post unexpected error: {ex}")
+            logging.exception(f"ERROR: ApiClient.post unexpected error to {endpoint}: {ex}")
             raise
 
     def get(self, endpoint, params=None, headers=None):
@@ -390,7 +390,7 @@ class ApiClient:
             logging.exception(f"ERROR: ApiClient.get from {endpoint}: {ex}")
             raise
         except Exception as ex:
-            logging.exception(f"ERROR: ApiClient.get unexpected error: {ex}")
+            logging.exception(f"ERROR: ApiClient.get unexpected error to {endpoint}: {ex}")
             raise
 
 

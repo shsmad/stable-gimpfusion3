@@ -81,12 +81,17 @@ def get_progress_at_background(api: ApiClient) -> None:
         while progress < 1 and job_count != 0:
             time.sleep(2)
             result = api.get("/sdapi/v1/progress", params={"skip_current_image": "true"})
-            progress = result["progress"]
-            job_count = result["state"]["job_count"]
+            if not result or "progress" not in result:
+                logging.warning("Invalid progress response, stopping")
+                break
+            progress = result.get("progress", 0)
+            state = result.get("state", {})
+            job_count = state.get("job_count", 0)
+            eta = result.get("eta_relative", 0)
+
             Gimp.progress_update(progress)
-            Gimp.progress_set_text(f"Progress: {round(progress * 100, 2)}%, ETA: {round(result['eta_relative'])}s")
+            Gimp.progress_set_text(f"Progress: {round(progress * 100, 2)}%, ETA: {round(eta)}s")
             logging.debug(f"get_progress_at_background {result=}")
-        return
     except Exception as ex:
         logging.exception(f"Error in progress thread: {ex}")
     finally:
